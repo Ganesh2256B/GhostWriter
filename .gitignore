@@ -1,0 +1,30 @@
+# ── Secrets & Keys (NEVER commit these) ──────────────────────────
+# If you ever create a separate config file with your API key, add it here
+config.js
+config.local.js
+secrets.js
+.env
+.env.local
+.env.production
+
+# ── PowerPoint / presentation files ─────────────────────────────
+# Keep your pitch deck off GitHub (share separately if needed)
+*.pptx
+*.ppt
+*.key
+
+# ── OS junk files ────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Editor folders ───────────────────────────────────────────────
+.vscode/
+.idea/
+*.suo
+*.user
+
+# ── Node (if you ever add a build step later) ────────────────────
+node_modules/
+dist/
+.cache/

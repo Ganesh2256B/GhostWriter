@@ -1493,6 +1493,80 @@
       line-height: 1;
     }
 
+    /* ── Real-time Hospital Finder UI ───────────────────────── */
+    .loc-controls { display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px; }
+
+    .loc-search-row { display: flex; gap: 8px; }
+
+    .loc-input-wrap {
+      flex: 1; display: flex; align-items: center;
+      background: var(--white); border: 1.5px solid #c3e6cb;
+      border-radius: 10px; padding: 0 12px; gap: 8px;
+      transition: border-color var(--transition);
+    }
+    .loc-input-wrap:focus-within { border-color: var(--green-mid); }
+    .loc-input-icon { font-size: 1rem; flex-shrink: 0; }
+    .loc-input-wrap input {
+      flex: 1; border: none; outline: none; font-size: .9rem;
+      font-family: inherit; background: transparent; padding: 10px 0;
+    }
+
+    .loc-search-btn {
+      background: var(--green-mid); color: white; border: none;
+      border-radius: 10px; padding: 10px 18px; font-size: .9rem;
+      font-weight: 700; cursor: pointer; white-space: nowrap;
+      transition: opacity var(--transition);
+    }
+    .loc-search-btn:hover { opacity: .85; }
+
+    .loc-divider {
+      display: flex; align-items: center; gap: 10px;
+      color: var(--gray-400); font-size: .8rem;
+    }
+    .loc-divider::before, .loc-divider::after {
+      content: ''; flex: 1; height: 1px; background: var(--gray-200);
+    }
+
+    .loc-gps-btn {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      background: var(--green-pale); color: var(--green-dark);
+      border: 2px solid #c3e6cb; border-radius: 10px;
+      padding: 11px 18px; font-size: .92rem; font-weight: 700;
+      cursor: pointer; transition: background var(--transition), border-color var(--transition);
+    }
+    .loc-gps-btn:hover { background: #c3e6cb; border-color: var(--green-mid); }
+    .loc-gps-btn.loading { opacity: .7; cursor: not-allowed; }
+
+    .loc-status {
+      padding: 10px 14px; border-radius: 8px; font-size: .85rem;
+      font-weight: 600; display: flex; align-items: center; gap: 8px;
+    }
+    .loc-status.info   { background: #e8f4fd; color: #0c5460; border: 1px solid #b8daff; }
+    .loc-status.ok     { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+    .loc-status.error  { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+
+    .hosp-spinner {
+      display: flex; align-items: center; justify-content: center;
+      gap: 12px; padding: 28px; color: var(--green-dark); font-weight: 600;
+    }
+    .hosp-spin-ring {
+      width: 28px; height: 28px;
+      border: 3px solid var(--green-pale); border-top-color: var(--green-mid);
+      border-radius: 50%; animation: spin .8s linear infinite; flex-shrink: 0;
+    }
+
+    .hosp-empty, .hosp-prompt {
+      text-align: center; padding: 32px 16px; color: var(--gray-600);
+    }
+    .hosp-empty strong, .hosp-prompt strong { display: block; font-size: 1rem; color: var(--gray-800); margin-bottom: 6px; }
+    .hosp-prompt p { font-size: .88rem; line-height: 1.6; margin: 4px 0; }
+
+    .hosp-count-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 14px; font-size: .82rem; color: var(--gray-600);
+    }
+    .hosp-count-bar strong { color: var(--green-dark); }
+
     /* ── Footer ──────────────────────────────────────────────── */
     footer {
       text-align: center;
@@ -1748,277 +1822,59 @@
     </div>
   </div>
 
-  <!-- ── Featured Clinic Cards ── -->
-  <div class="card">
+  <!-- ── Real-time Nearby Hospitals ── -->
+  <div class="card" id="hospitals-card">
     <div class="card-header">
       <div class="icon">📍</div>
-      <h2>Nearby Clinics</h2>
+      <h2>Nearby Hospitals &amp; Clinics</h2>
     </div>
     <div class="card-body">
-      <div class="featured-clinics-grid">
 
-        <!-- Card 1 -->
-        <div class="fc-card">
-          <div class="fc-top">
-            <div class="fc-avatar">🏥</div>
-            <div>
-              <div class="fc-name">Rampur Primary Health Centre</div>
-              <div class="fc-type">Government · Free Services</div>
-            </div>
+      <!-- Location controls -->
+      <div class="loc-controls">
+        <div class="loc-search-row">
+          <div class="loc-input-wrap">
+            <span class="loc-input-icon">🔍</span>
+            <input type="text" id="location-input"
+              placeholder="Type a city, area, or PIN code…"
+              onkeydown="if(event.key==='Enter') searchByText()" />
           </div>
-          <hr class="fc-divider" />
-          <div class="fc-meta">
-            <div class="fc-meta-row">
-              <div class="fc-meta-icon">📍</div>
-              <div>
-                <span class="fc-meta-label">Address</span>
-                <span class="fc-meta-value">NH-58, Rampur Village, UP</span>
-              </div>
-              <span class="fc-dist-badge" style="margin-left:auto">🚶 1.2 km</span>
-            </div>
-            <div class="fc-meta-row">
-              <div class="fc-meta-icon">📞</div>
-              <div>
-                <span class="fc-meta-label">Phone</span>
-                <span class="fc-meta-value">+91-104 / 1800-180-1104</span>
-              </div>
-              <span class="fc-status open" style="margin-left:auto">● Open</span>
-            </div>
-            <div class="fc-meta-row">
-              <div class="fc-meta-icon">🕐</div>
-              <div>
-                <span class="fc-meta-label">Hours</span>
-                <span class="fc-meta-value">Mon–Sat, 8:00 AM – 4:00 PM</span>
-              </div>
-            </div>
-          </div>
-          <div class="fc-actions">
-            <a class="fc-btn-call" href="tel:104">
-              📞 Call Now
-            </a>
-            <a class="fc-btn-maps"
-               href="https://www.google.com/maps/search/Primary+Health+Centre+Rampur+Uttar+Pradesh"
-               target="_blank" rel="noopener">
-              🗺️ Open in Maps
-            </a>
-          </div>
+          <button class="loc-search-btn" onclick="searchByText()">Search</button>
         </div>
-
-        <!-- Card 2 -->
-        <div class="fc-card">
-          <div class="fc-top">
-            <div class="fc-avatar">🏨</div>
-            <div>
-              <div class="fc-name">City Care Multispeciality Clinic</div>
-              <div class="fc-type">Private · General &amp; Specialist</div>
-            </div>
-          </div>
-          <hr class="fc-divider" />
-          <div class="fc-meta">
-            <div class="fc-meta-row">
-              <div class="fc-meta-icon">📍</div>
-              <div>
-                <span class="fc-meta-label">Address</span>
-                <span class="fc-meta-value">12 Civil Lines, Market Road</span>
-              </div>
-              <span class="fc-dist-badge" style="margin-left:auto">🚶 2.8 km</span>
-            </div>
-            <div class="fc-meta-row">
-              <div class="fc-meta-icon">📞</div>
-              <div>
-                <span class="fc-meta-label">Phone</span>
-                <span class="fc-meta-value">+91-98765-43210</span>
-              </div>
-              <span class="fc-status open" style="margin-left:auto">● Open</span>
-            </div>
-            <div class="fc-meta-row">
-              <div class="fc-meta-icon">🕐</div>
-              <div>
-                <span class="fc-meta-label">Hours</span>
-                <span class="fc-meta-value">Daily, 9:00 AM – 8:00 PM</span>
-              </div>
-            </div>
-          </div>
-          <div class="fc-actions">
-            <a class="fc-btn-call" href="tel:+919876543210">
-              📞 Call Now
-            </a>
-            <a class="fc-btn-maps"
-               href="https://www.google.com/maps/search/Multispeciality+Clinic+Civil+Lines"
-               target="_blank" rel="noopener">
-              🗺️ Open in Maps
-            </a>
-          </div>
-        </div>
-
-        <!-- Card 3 -->
-        <div class="fc-card">
-          <div class="fc-top">
-            <div class="fc-avatar">🚑</div>
-            <div>
-              <div class="fc-name">District Community Health Centre</div>
-              <div class="fc-type">Government · 24/7 Emergency</div>
-            </div>
-          </div>
-          <hr class="fc-divider" />
-          <div class="fc-meta">
-            <div class="fc-meta-row">
-              <div class="fc-meta-icon">📍</div>
-              <div>
-                <span class="fc-meta-label">Address</span>
-                <span class="fc-meta-value">District Road, Near Bus Stand</span>
-              </div>
-              <span class="fc-dist-badge" style="margin-left:auto">🚗 4.7 km</span>
-            </div>
-            <div class="fc-meta-row">
-              <div class="fc-meta-icon">📞</div>
-              <div>
-                <span class="fc-meta-label">Emergency</span>
-                <span class="fc-meta-value">108 (Free Ambulance)</span>
-              </div>
-              <span class="fc-status open" style="margin-left:auto">● 24 / 7</span>
-            </div>
-            <div class="fc-meta-row">
-              <div class="fc-meta-icon">🕐</div>
-              <div>
-                <span class="fc-meta-label">Hours</span>
-                <span class="fc-meta-value">Always Open — Emergency Ward</span>
-              </div>
-            </div>
-          </div>
-          <div class="fc-actions">
-            <a class="fc-btn-call" href="tel:108">
-              📞 Call 108
-            </a>
-            <a class="fc-btn-maps"
-               href="https://www.google.com/maps/search/Community+Health+Centre+District+Hospital"
-               target="_blank" rel="noopener">
-              🗺️ Open in Maps
-            </a>
-          </div>
-        </div>
-
-      </div><!-- /featured-clinics-grid -->
-    </div>
-  </div>
-
-  <!-- ── Clinics Card ── -->
-  <div class="card">
-    <div class="card-header">
-      <div class="icon">🏥</div>
-      <h2>Nearest Clinics &amp; Health Centres</h2>
-    </div>
-    <div class="card-body">
-      <!-- Location Bar -->
-      <div class="location-bar">
-        <span>📍</span>
-        <input type="text" id="location-input" placeholder="Enter your village / town / PIN code…" />
-        <button class="loc-btn" onclick="detectLocation()">📡 Detect</button>
+        <div class="loc-divider"><span>or</span></div>
+        <button class="loc-gps-btn" id="loc-gps-btn" onclick="detectLocation()">
+          <span id="gps-icon">📡</span>
+          <span id="gps-label">Use My Current Location</span>
+        </button>
       </div>
 
-      <!-- Clinic List -->
-      <div class="clinics-list" id="clinics-list">
+      <!-- Status bar -->
+      <div class="loc-status" id="loc-status" style="display:none"></div>
 
-        <a class="clinic-card" href="tel:104" tabindex="0">
-          <div class="clinic-icon">🏥</div>
-          <div class="clinic-info">
-            <div class="clinic-name">Govt. Primary Health Centre</div>
-            <div class="clinic-detail">
-              <span>📍 Rampur Village</span>
-              <span>📞 104</span>
-            </div>
-            <div class="clinic-tags">
-              <span class="tag">Free Services</span>
-              <span class="tag">AYUSH</span>
-              <span class="tag">Maternity</span>
-            </div>
-          </div>
-          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
-            <span class="clinic-dist">1.2 km</span>
-            <span class="open-badge open">OPEN</span>
-          </div>
-        </a>
-
-        <a class="clinic-card" href="tel:+911800111545" tabindex="0">
-          <div class="clinic-icon">💊</div>
-          <div class="clinic-info">
-            <div class="clinic-name">Jan Aushadhi Kendra</div>
-            <div class="clinic-detail">
-              <span>📍 Main Bazaar, 0.4 km</span>
-              <span>📞 1800-111-545</span>
-            </div>
-            <div class="clinic-tags">
-              <span class="tag">Generic Medicines</span>
-              <span class="tag">Affordable</span>
-            </div>
-          </div>
-          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
-            <span class="clinic-dist">0.4 km</span>
-            <span class="open-badge open">OPEN</span>
-          </div>
-        </a>
-
-        <a class="clinic-card" href="tel:108" tabindex="0">
-          <div class="clinic-icon">🚑</div>
-          <div class="clinic-info">
-            <div class="clinic-name">Community Health Centre</div>
-            <div class="clinic-detail">
-              <span>📍 District Road, 4.7 km</span>
-              <span>📞 108</span>
-            </div>
-            <div class="clinic-tags">
-              <span class="tag">24/7 Emergency</span>
-              <span class="tag">Laboratory</span>
-              <span class="tag">X-Ray</span>
-            </div>
-          </div>
-          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
-            <span class="clinic-dist">4.7 km</span>
-            <span class="open-badge open">24/7</span>
-          </div>
-        </a>
-
-        <a class="clinic-card" href="tel:+911800180111" tabindex="0">
-          <div class="clinic-icon">🌿</div>
-          <div class="clinic-info">
-            <div class="clinic-name">ASHA Health Worker (Mobile)</div>
-            <div class="clinic-detail">
-              <span>📍 Doorstep service</span>
-              <span>📞 1800-180-1104</span>
-            </div>
-            <div class="clinic-tags">
-              <span class="tag">Home Visit</span>
-              <span class="tag">Maternal Care</span>
-              <span class="tag">Vaccinations</span>
-            </div>
-          </div>
-          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
-            <span class="clinic-dist">Nearby</span>
-            <span class="open-badge open">CALL</span>
-          </div>
-        </a>
-
-        <a class="clinic-card" href="tel:+911800112545" tabindex="0">
-          <div class="clinic-icon">🔬</div>
-          <div class="clinic-info">
-            <div class="clinic-name">Telemedicine – eSanjeevani</div>
-            <div class="clinic-detail">
-              <span>📍 Online / App</span>
-              <span>📞 1800-112-545</span>
-            </div>
-            <div class="clinic-tags">
-              <span class="tag">Video Consult</span>
-              <span class="tag">Free</span>
-              <span class="tag">No Travel</span>
-            </div>
-          </div>
-          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
-            <span class="clinic-dist">Virtual</span>
-            <span class="open-badge open">OPEN</span>
-          </div>
-        </a>
-
+      <!-- Hospitals loading spinner -->
+      <div class="hosp-spinner" id="hosp-spinner" style="display:none">
+        <div class="hosp-spin-ring"></div>
+        <span>Finding real hospitals near you…</span>
       </div>
+
+      <!-- Results grid -->
+      <div class="featured-clinics-grid" id="hosp-results" style="display:none"></div>
+
+      <!-- No results -->
+      <div class="hosp-empty" id="hosp-empty" style="display:none">
+        <div style="font-size:2.5rem;margin-bottom:10px">🏥</div>
+        <strong>No hospitals found nearby</strong>
+        <p>Try searching a broader area or a nearby town name.</p>
+      </div>
+
+      <!-- Initial prompt -->
+      <div class="hosp-prompt" id="hosp-prompt">
+        <div style="font-size:2.5rem;margin-bottom:12px">📍</div>
+        <strong>Find real hospitals near you</strong>
+        <p>Click <strong>"Use My Current Location"</strong> to automatically find hospitals within 10 km using OpenStreetMap — completely free, no API key needed.</p>
+        <p style="margin-top:8px;font-size:.8rem;color:var(--gray-400)">Powered by OpenStreetMap · Overpass API</p>
+      </div>
+
     </div>
   </div>
 
@@ -2813,27 +2669,261 @@ Rules:
     window.print();
   }
 
-  /* ─── Geolocation ──────────────────────────────────────── */
+  /* ══════════════════════════════════════════════════════════
+     REAL HOSPITAL FINDER — OpenStreetMap Overpass API (FREE)
+     ══════════════════════════════════════════════════════════ */
+
+  // Haversine formula — accurate distance in km between two lat/lon points
+  function haversine(lat1, lon1, lat2, lon2) {
+    const R = 6371;
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat/2)**2 +
+              Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) * Math.sin(dLon/2)**2;
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  }
+
+  function setLocStatus(type, msg) {
+    const el = document.getElementById('loc-status');
+    el.style.display = 'flex';
+    el.className = 'loc-status ' + type;
+    el.innerHTML = msg;
+  }
+
+  function showHospSpinner(show) {
+    document.getElementById('hosp-spinner').style.display = show ? 'flex' : 'none';
+  }
+
+  // ── Use GPS to get real coordinates ────────────────────────
   function detectLocation() {
-    const input = document.getElementById('location-input');
-    input.value = '📡 Detecting…';
     if (!navigator.geolocation) {
-      input.value = '';
-      input.placeholder = 'Geolocation not supported. Please type your location.';
+      setLocStatus('error', '⚠️ Your browser doesn\'t support GPS. Please type a location above.');
       return;
     }
+    const btn = document.getElementById('loc-gps-btn');
+    btn.classList.add('loading');
+    document.getElementById('gps-icon').textContent  = '⏳';
+    document.getElementById('gps-label').textContent = 'Getting your location…';
+    setLocStatus('info', '📡 Accessing your GPS — please allow location permission if prompted…');
+    document.getElementById('hosp-prompt').style.display = 'none';
+
     navigator.geolocation.getCurrentPosition(
-      (pos) => {
+      async (pos) => {
         const { latitude: lat, longitude: lon } = pos.coords;
-        input.value = `📍 Lat ${lat.toFixed(4)}, Lon ${lon.toFixed(4)} (Clinics updated)`;
-        // In production: reverse-geocode & fetch real clinics from an API
+        btn.classList.remove('loading');
+        document.getElementById('gps-icon').textContent  = '📡';
+        document.getElementById('gps-label').textContent = 'Use My Current Location';
+
+        // Reverse geocode with Nominatim to get a place name
+        try {
+          const r = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`,
+            { headers: { 'Accept-Language': 'en' } }
+          );
+          const geo = await r.json();
+          const place = geo.address?.city || geo.address?.town || geo.address?.village
+                     || geo.address?.suburb || geo.display_name?.split(',')[0] || 'Your location';
+          document.getElementById('location-input').value = place;
+          setLocStatus('ok', `✅ Located: <strong>${place}</strong> · Searching for hospitals within 10 km…`);
+        } catch {
+          setLocStatus('ok', `✅ GPS acquired (${lat.toFixed(4)}, ${lon.toFixed(4)}) · Searching for hospitals…`);
+        }
+
+        await fetchHospitals(lat, lon);
       },
-      () => {
-        input.value = '';
-        input.placeholder = 'Could not detect location. Please type manually.';
+      (err) => {
+        btn.classList.remove('loading');
+        document.getElementById('gps-icon').textContent  = '📡';
+        document.getElementById('gps-label').textContent = 'Use My Current Location';
+        const msgs = {
+          1: '🚫 Location permission denied. Please allow it in your browser settings, or type a location above.',
+          2: '📡 Could not get your position. Check that GPS is enabled on your device.',
+          3: '⏱️ Location request timed out. Try again or type a location manually.',
+        };
+        setLocStatus('error', msgs[err.code] || '⚠️ Location error. Please type a location above.');
       },
-      { timeout: 8000 }
+      { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 }
     );
+  }
+
+  // ── Text search — geocode the typed name then search ───────
+  async function searchByText() {
+    const query = document.getElementById('location-input').value.trim();
+    if (!query) { setLocStatus('error', '⚠️ Please type a location first.'); return; }
+
+    setLocStatus('info', `🔍 Finding coordinates for "<strong>${query}</strong>"…`);
+    document.getElementById('hosp-prompt').style.display = 'none';
+
+    try {
+      const r = await fetch(
+        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=1`,
+        { headers: { 'Accept-Language': 'en' } }
+      );
+      const results = await r.json();
+      if (!results.length) {
+        setLocStatus('error', `❌ Could not find "<strong>${query}</strong>". Try a nearby city or district name.`);
+        return;
+      }
+      const { lat, lon, display_name } = results[0];
+      setLocStatus('ok', `✅ Found: <strong>${display_name.split(',').slice(0,2).join(', ')}</strong> · Searching hospitals…`);
+      await fetchHospitals(parseFloat(lat), parseFloat(lon));
+    } catch {
+      setLocStatus('error', '📡 Network error. Check your internet connection and try again.');
+    }
+  }
+
+  // ── Core: Overpass API → render hospital cards ─────────────
+  async function fetchHospitals(lat, lon) {
+    showHospSpinner(true);
+    document.getElementById('hosp-results').style.display = 'none';
+    document.getElementById('hosp-empty').style.display   = 'none';
+
+    // Overpass query: hospitals + clinics + doctors within 10 km
+    const radius = 10000;
+    const query  = `
+      [out:json][timeout:30];
+      (
+        node["amenity"="hospital"](around:${radius},${lat},${lon});
+        way["amenity"="hospital"](around:${radius},${lat},${lon});
+        node["amenity"="clinic"](around:${radius},${lat},${lon});
+        way["amenity"="clinic"](around:${radius},${lat},${lon});
+        node["amenity"="doctors"](around:${radius},${lat},${lon});
+        node["healthcare"="hospital"](around:${radius},${lat},${lon});
+        node["healthcare"="clinic"](around:${radius},${lat},${lon});
+      );
+      out center tags;
+    `;
+
+    try {
+      const resp = await fetch('https://overpass-api.de/api/interpreter', {
+        method: 'POST',
+        body: 'data=' + encodeURIComponent(query)
+      });
+      const data = await resp.json();
+      showHospSpinner(false);
+      renderHospitalCards(data.elements, lat, lon);
+    } catch (err) {
+      showHospSpinner(false);
+      setLocStatus('error', '📡 Could not reach OpenStreetMap. Check your internet and try again.');
+    }
+  }
+
+  // ── Build hospital cards from Overpass results ─────────────
+  function renderHospitalCards(elements, userLat, userLon) {
+    const resultsEl = document.getElementById('hosp-results');
+    const emptyEl   = document.getElementById('hosp-empty');
+
+    if (!elements || elements.length === 0) {
+      emptyEl.style.display   = 'block';
+      resultsEl.style.display = 'none';
+      return;
+    }
+
+    // Deduplicate by name, compute distance, sort nearest first
+    const seen = new Set();
+    const hospitals = elements
+      .map(el => {
+        const eLat = el.lat ?? el.center?.lat;
+        const eLon = el.lon ?? el.center?.lon;
+        if (!eLat || !eLon) return null;
+        const name = el.tags?.name || el.tags?.['name:en'] || 'Unnamed Facility';
+        if (seen.has(name)) return null;
+        seen.add(name);
+        return {
+          name,
+          lat: eLat, lon: eLon,
+          dist: haversine(userLat, userLon, eLat, eLon),
+          phone:    el.tags?.phone || el.tags?.['contact:phone'] || '',
+          amenity:  el.tags?.amenity || el.tags?.healthcare || 'clinic',
+          operator: el.tags?.operator || el.tags?.['operator:type'] || '',
+          emergency: el.tags?.emergency === 'yes',
+          website:  el.tags?.website || '',
+          addr:     [el.tags?.['addr:housenumber'], el.tags?.['addr:street'],
+                     el.tags?.['addr:suburb'], el.tags?.['addr:city']]
+                    .filter(Boolean).join(', ') || 'See on map',
+        };
+      })
+      .filter(Boolean)
+      .sort((a, b) => a.dist - b.dist)
+      .slice(0, 9);  // show top 9
+
+    // Choose icon and type label
+    function hospMeta(h) {
+      if (h.amenity === 'hospital' || h.name.toLowerCase().includes('hospital'))
+        return { icon: '🏥', type: 'Hospital' };
+      if (h.amenity === 'doctors')  return { icon: '👨‍⚕️', type: 'Doctor / Clinic' };
+      if (h.emergency)               return { icon: '🚑', type: 'Emergency' };
+      return { icon: '🏨', type: 'Health Clinic' };
+    }
+
+    // Build cards HTML
+    const cardsHTML = hospitals.map(h => {
+      const { icon, type } = hospMeta(h);
+      const distStr = h.dist < 1
+        ? Math.round(h.dist * 1000) + ' m'
+        : h.dist.toFixed(1) + ' km';
+      const modeIcon = h.dist < 1 ? '🚶' : h.dist < 3 ? '🚶' : '🚗';
+      const mapsUrl  = `https://www.google.com/maps/dir/?api=1&destination=${h.lat},${h.lon}`;
+      const callHTML = h.phone
+        ? `<a class="fc-btn-call" href="tel:${h.phone.replace(/\s/g,'')}">📞 Call</a>`
+        : `<a class="fc-btn-call" href="${mapsUrl}" target="_blank" rel="noopener">📍 Directions</a>`;
+
+      return `
+        <div class="fc-card">
+          <div class="fc-top">
+            <div class="fc-avatar">${icon}</div>
+            <div style="flex:1;min-width:0">
+              <div class="fc-name" style="word-break:break-word">${h.name}</div>
+              <div class="fc-type">${type}${h.operator ? ' · ' + h.operator : ''}</div>
+            </div>
+          </div>
+          <hr class="fc-divider"/>
+          <div class="fc-meta">
+            <div class="fc-meta-row">
+              <div class="fc-meta-icon">📍</div>
+              <div style="flex:1;min-width:0">
+                <span class="fc-meta-label">Address</span>
+                <span class="fc-meta-value" style="word-break:break-word">${h.addr}</span>
+              </div>
+              <span class="fc-dist-badge" style="margin-left:8px;flex-shrink:0">${modeIcon} ${distStr}</span>
+            </div>
+            ${h.phone ? `
+            <div class="fc-meta-row">
+              <div class="fc-meta-icon">📞</div>
+              <div>
+                <span class="fc-meta-label">Phone</span>
+                <span class="fc-meta-value">${h.phone}</span>
+              </div>
+              <span class="fc-status open" style="margin-left:auto">● Listed</span>
+            </div>` : ''}
+            ${h.emergency ? `
+            <div class="fc-meta-row">
+              <div class="fc-meta-icon">🚨</div>
+              <div>
+                <span class="fc-meta-label">Emergency</span>
+                <span class="fc-meta-value">Emergency services available</span>
+              </div>
+            </div>` : ''}
+          </div>
+          <div class="fc-actions">
+            ${callHTML}
+            <a class="fc-btn-maps" href="${mapsUrl}" target="_blank" rel="noopener">
+              🗺️ Open in Maps
+            </a>
+          </div>
+        </div>`;
+    }).join('');
+
+    resultsEl.innerHTML = `
+      <div class="hosp-count-bar" style="grid-column:1/-1">
+        <span>Found <strong>${hospitals.length}</strong> health facilities within 10 km</span>
+        <span style="font-size:.75rem;color:var(--gray-400)">📌 OpenStreetMap data</span>
+      </div>
+      ${cardsHTML}`;
+
+    resultsEl.style.display = 'grid';
+    emptyEl.style.display   = 'none';
+    resultsEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 </script>
 </body>

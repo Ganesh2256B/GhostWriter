@@ -610,72 +610,169 @@
           { top: '86%', left: '7%', width: '86%', height: '10%', label: 'BottomNavBar' }
         ],
         html: `
-          <div class="flex-1 flex flex-col justify-between">
-            <div>
-              <div class="flex items-center justify-between pb-3 border-b border-slate-800">
-                <div>
-                  <h4 class="text-xs font-bold text-white tracking-wide">QuickBite Food</h4>
-                  <p class="text-[9px] text-slate-400">Delivering to: <span class="text-amber-400 font-bold">Hackathon Arena</span></p>
-                </div>
-                <div class="relative">
-                  <span class="p-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 block text-xs">🛍️</span>
-                  <span id="foodCartBadge" class="absolute -top-1 -right-1 bg-amber-500 text-slate-950 font-black text-[9px] w-4 h-4 rounded-full flex items-center justify-center">0</span>
-                </div>
-              </div>
-
-              <!-- Search -->
-              <div class="mt-3">
-                <input type="text" placeholder="Search pizza, burgers, sushi..." class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-500" />
-              </div>
-
-              <!-- Promo Banner -->
-              <div class="mt-2.5 p-3 rounded-2xl bg-gradient-to-r from-amber-600 via-orange-600 to-amber-700 text-white shadow-md">
-                <span class="text-[9px] uppercase font-bold tracking-widest bg-black/30 px-1.5 py-0.5 rounded">20% OFF FIRST ORDER</span>
-                <div class="text-xs font-black mt-1">Midnight Food Fest</div>
-                <div class="text-[9px] opacity-80">Use Code: HACKATHON2026</div>
-              </div>
-
-              <!-- Food Cards Grid -->
-              <div class="grid grid-cols-2 gap-2 mt-3">
-                <div class="bg-slate-900 border border-slate-800/80 rounded-2xl p-2.5 flex flex-col justify-between">
-                  <div class="h-16 bg-slate-800/60 rounded-xl flex items-center justify-center text-3xl">🍕</div>
-                  <div class="mt-1.5">
-                    <div class="text-[11px] font-bold text-white truncate">Margherita Pizza</div>
-                    <div class="text-xs font-bold text-amber-400 mt-0.5">$12.99</div>
+          <div class="flex-1 flex flex-col justify-between h-full">
+            <!-- ================= 1. HOME SCREEN ================= -->
+            <div id="phone-screen-home" class="flex-1 flex flex-col justify-between overflow-y-auto">
+              <div>
+                <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                  <div>
+                    <h4 class="text-xs font-bold text-white tracking-wide">QuickBite Food</h4>
+                    <p class="text-[9px] text-slate-400">Delivering to: <span class="text-amber-400 font-bold">Hackathon Arena</span></p>
                   </div>
-                  <button onclick="incrementFoodCart()" class="mt-2 w-full py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-[10px] rounded-lg transition active:scale-95">
-                    + Add to Cart
-                  </button>
+                  <div class="relative cursor-pointer" onclick="navigatePhoneScreen('cart')">
+                    <span class="p-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 block text-xs">🛍️</span>
+                    <span id="phoneCartBadge" class="cart-badge-count absolute -top-1 -right-1 bg-amber-500 text-slate-950 font-black text-[9px] w-4 h-4 rounded-full flex items-center justify-center">1</span>
+                  </div>
                 </div>
 
-                <div class="bg-slate-900 border border-slate-800/80 rounded-2xl p-2.5 flex flex-col justify-between">
-                  <div class="h-16 bg-slate-800/60 rounded-xl flex items-center justify-center text-3xl">🍔</div>
-                  <div class="mt-1.5">
-                    <div class="text-[11px] font-bold text-white truncate">Cheeseburger</div>
-                    <div class="text-xs font-bold text-amber-400 mt-0.5">$9.99</div>
+                <!-- Search -->
+                <div class="mt-3 cursor-pointer" onclick="navigatePhoneScreen('search')">
+                  <input type="text" readonly placeholder="Search pizza, burgers, sushi..." class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-1.5 text-xs text-white placeholder-slate-500 cursor-pointer" />
+                </div>
+
+                <!-- Promo Banner -->
+                <div class="mt-2.5 p-3 rounded-2xl bg-gradient-to-r from-amber-600 via-orange-600 to-amber-700 text-white shadow-md">
+                  <span class="text-[9px] uppercase font-bold tracking-widest bg-black/30 px-1.5 py-0.5 rounded">20% OFF FIRST ORDER</span>
+                  <div class="text-xs font-black mt-1">Midnight Food Fest</div>
+                  <div class="text-[9px] opacity-80">Use Code: HACKATHON2026</div>
+                </div>
+
+                <!-- Food Cards Grid -->
+                <div class="grid grid-cols-2 gap-2 mt-3">
+                  <div class="bg-slate-900 border border-slate-800/80 rounded-2xl p-2.5 flex flex-col justify-between">
+                    <div class="h-16 bg-slate-800/60 rounded-xl flex items-center justify-center text-3xl">🍕</div>
+                    <div class="mt-1.5">
+                      <div class="text-[11px] font-bold text-white truncate">Margherita Pizza</div>
+                      <div class="text-xs font-bold text-amber-400 mt-0.5">$12.99</div>
+                    </div>
+                    <button onclick="addItemToCart('Margherita Pizza', 12.99, '🍕')" class="mt-2 w-full py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-[10px] rounded-lg transition active:scale-95">
+                      + Add to Cart
+                    </button>
                   </div>
-                  <button onclick="incrementFoodCart()" class="mt-2 w-full py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-[10px] rounded-lg transition active:scale-95">
-                    + Add to Cart
-                  </button>
+
+                  <div class="bg-slate-900 border border-slate-800/80 rounded-2xl p-2.5 flex flex-col justify-between">
+                    <div class="h-16 bg-slate-800/60 rounded-xl flex items-center justify-center text-3xl">🍔</div>
+                    <div class="mt-1.5">
+                      <div class="text-[11px] font-bold text-white truncate">Cheeseburger</div>
+                      <div class="text-xs font-bold text-amber-400 mt-0.5">$9.99</div>
+                    </div>
+                    <button onclick="addItemToCart('Cheeseburger', 9.99, '🍔')" class="mt-2 w-full py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-[10px] rounded-lg transition active:scale-95">
+                      + Add to Cart
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <!-- Bottom Nav -->
-            <div class="pt-2 border-t border-slate-800/80 flex items-center justify-around text-slate-400 text-[10px]">
-              <button onclick="switchPhoneTab(this, 'Home')" class="text-amber-400 font-bold flex flex-col items-center">
+            <!-- ================= 2. SHOPPING CART SCREEN ================= -->
+            <div id="phone-screen-cart" class="hidden flex-1 flex flex-col justify-between overflow-y-auto">
+              <div>
+                <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                  <button onclick="navigatePhoneScreen('home')" class="text-xs text-slate-400 hover:text-white flex items-center gap-1">
+                    ← Back
+                  </button>
+                  <h4 class="text-xs font-bold text-white">Your Cart (<span class="cart-badge-count">1</span>)</h4>
+                  <div class="w-5"></div>
+                </div>
+
+                <div id="cartItemsList" class="space-y-2 mt-3"></div>
+
+                <div class="mt-4 p-3 rounded-2xl bg-surface-900 border border-white/5 space-y-1.5 text-[11px]">
+                  <div class="flex items-center justify-between text-slate-400">
+                    <span>Subtotal</span>
+                    <span id="cartSubtotal" class="font-bold text-white">$12.99</span>
+                  </div>
+                  <div class="flex items-center justify-between text-slate-400">
+                    <span>Delivery & Tax</span>
+                    <span class="font-bold text-white">$2.50</span>
+                  </div>
+                  <div class="pt-2 border-t border-white/5 flex items-center justify-between font-bold text-xs text-white">
+                    <span>Total</span>
+                    <span id="cartTotal" class="text-amber-400 font-black text-sm">$15.49</span>
+                  </div>
+                </div>
+              </div>
+
+              <button onclick="checkoutOrder()" class="mt-3 w-full py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 font-black text-xs rounded-xl shadow-lg transition active:scale-95">
+                🚀 Confirm Order & Pay
+              </button>
+            </div>
+
+            <!-- ================= 3. SEARCH SCREEN ================= -->
+            <div id="phone-screen-search" class="hidden flex-1 flex flex-col justify-between overflow-y-auto">
+              <div>
+                <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                  <h4 class="text-xs font-bold text-white">QuickBite Search</h4>
+                  <button onclick="navigatePhoneScreen('home')" class="text-xs text-slate-400 hover:text-white">Done</button>
+                </div>
+                <div class="mt-3">
+                  <input type="text" value="Pizza" placeholder="Search menu..." class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-1.5 text-xs text-white" />
+                </div>
+                <div class="space-y-2 mt-3">
+                  <div class="p-2.5 rounded-2xl bg-surface-900 border border-white/5 flex items-center justify-between text-xs">
+                    <div class="flex items-center gap-2">
+                      <span class="text-xl">🍕</span>
+                      <div>
+                        <div class="font-bold text-white text-[11px]">Pepperoni Feast</div>
+                        <div class="text-[9px] text-amber-400 font-bold">$15.99</div>
+                      </div>
+                    </div>
+                    <button onclick="addItemToCart('Pepperoni Feast', 15.99, '🍕')" class="px-2 py-1 bg-amber-500 text-slate-950 font-bold text-[10px] rounded-lg">
+                      + Add
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ================= 4. PROFILE SCREEN ================= -->
+            <div id="phone-screen-profile" class="hidden flex-1 flex flex-col justify-between overflow-y-auto">
+              <div>
+                <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                  <h4 class="text-xs font-bold text-white">Account</h4>
+                  <span class="text-[9px] px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 font-bold">GOLD MEMBER</span>
+                </div>
+                <div class="p-3 mt-3 rounded-2xl bg-surface-900 border border-white/5 flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-full bg-amber-500 flex items-center justify-center font-bold text-sm text-slate-950">
+                    JD
+                  </div>
+                  <div>
+                    <div class="text-xs font-bold text-white">Judge Demo User</div>
+                    <div class="text-[10px] text-slate-400">demo@hackathon.com</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ================= 5. SUCCESS SCREEN ================= -->
+            <div id="phone-screen-success" class="hidden flex-1 flex flex-col items-center justify-center text-center p-4 space-y-3">
+              <div class="w-14 h-14 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center text-2xl font-black border border-amber-500/40 animate-bounce">
+                ✓
+              </div>
+              <div>
+                <h4 class="text-sm font-bold text-white">Food Order Placed!</h4>
+                <p class="text-[10px] text-slate-400 mt-1">Kitchen is preparing your meal</p>
+              </div>
+              <button onclick="navigatePhoneScreen('home')" class="w-full py-2.5 bg-amber-500 text-slate-950 font-bold text-xs rounded-xl shadow-md">
+                ← Back to Menu
+              </button>
+            </div>
+
+            <!-- ================= BOTTOM NAVIGATION BAR ================= -->
+            <div class="pt-2 border-t border-slate-800/80 flex items-center justify-around text-slate-400 text-[10px] mt-2">
+              <button data-tab="home" onclick="navigatePhoneScreen('home')" class="phone-nav-btn text-amber-400 font-bold flex flex-col items-center transition">
                 <span>🏠</span>
                 <span class="text-[8px] mt-0.5">Home</span>
               </button>
-              <button onclick="switchPhoneTab(this, 'Search')" class="hover:text-white flex flex-col items-center">
+              <button data-tab="search" onclick="navigatePhoneScreen('search')" class="phone-nav-btn hover:text-white flex flex-col items-center transition">
                 <span>🔍</span>
                 <span class="text-[8px] mt-0.5">Search</span>
               </button>
-              <button onclick="switchPhoneTab(this, 'Orders')" class="hover:text-white flex flex-col items-center">
-                <span>📦</span>
-                <span class="text-[8px] mt-0.5">Orders</span>
+              <button data-tab="cart" onclick="navigatePhoneScreen('cart')" class="phone-nav-btn hover:text-white flex flex-col items-center transition relative">
+                <span>🛒</span>
+                <span class="text-[8px] mt-0.5">Cart</span>
               </button>
-              <button onclick="switchPhoneTab(this, 'Profile')" class="hover:text-white flex flex-col items-center">
+              <button data-tab="profile" onclick="navigatePhoneScreen('profile')" class="phone-nav-btn hover:text-white flex flex-col items-center transition">
                 <span>👤</span>
                 <span class="text-[8px] mt-0.5">Profile</span>
               </button>
@@ -1438,117 +1535,253 @@ const styles = StyleSheet.create({
               boxes.push({ top: '86%', left: '7%', width: '86%', height: '10%', label: 'TabBar:4Items' });
             }
 
-            // Build dynamic interactive HTML with 100% SVG icons
+            // Build dynamic multi-screen interactive HTML with 100% SVG icons
             const html = `
-              <div class="flex-1 flex flex-col justify-between">
-                <div>
-                  <!-- Live App Header -->
-                  <div class="flex items-center justify-between pb-3 border-b border-slate-800">
-                    <div class="flex items-center gap-2">
-                      <div class="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-black text-xs border border-emerald-500/30">
-                        ⚡
+              <div class="flex-1 flex flex-col justify-between h-full">
+                
+                <!-- ================= 1. HOME SCREEN ================= -->
+                <div id="phone-screen-home" class="flex-1 flex flex-col justify-between overflow-y-auto">
+                  <div>
+                    <!-- Header -->
+                    <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                      <div class="flex items-center gap-2">
+                        <div class="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-black text-xs border border-emerald-500/30">
+                          ⚡
+                        </div>
+                        <div>
+                          <h4 class="text-xs font-bold text-white tracking-wide">${rawName}</h4>
+                          <p class="text-[9px] text-emerald-400 font-semibold">● Vision Compiled</p>
+                        </div>
                       </div>
-                      <div>
-                        <h4 class="text-xs font-bold text-white tracking-wide">${rawName}</h4>
-                        <p class="text-[9px] text-emerald-400 font-semibold">● Vision Parsed Live</p>
+                      <div class="relative cursor-pointer" onclick="navigatePhoneScreen('cart')">
+                        <div class="p-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-300">
+                          <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+                        </div>
+                        <span id="phoneCartBadge" class="cart-badge-count absolute -top-1 -right-1 bg-emerald-500 text-slate-950 font-black text-[9px] w-4 h-4 rounded-full flex items-center justify-center transition-transform">1</span>
                       </div>
                     </div>
-                    <div class="relative cursor-pointer" onclick="incrementDynamicCart()">
-                      <div class="p-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-300">
-                        <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+
+                    <!-- Search Input -->
+                    <div class="mt-3 relative flex items-center cursor-pointer" onclick="navigatePhoneScreen('search')">
+                      <div class="absolute left-3 pointer-events-none">
+                        <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                       </div>
-                      <span id="dynamicCartBadge" class="absolute -top-1 -right-1 bg-emerald-500 text-slate-950 font-black text-[9px] w-4 h-4 rounded-full flex items-center justify-center">0</span>
+                      <input type="text" readonly placeholder="Tap to search ${rawName.toLowerCase()}..." class="w-full bg-slate-900 border border-slate-800 rounded-xl pl-8 pr-3 py-1.5 text-xs text-white placeholder-slate-500 cursor-pointer" />
                     </div>
-                  </div>
 
-                  <!-- Real SVG Search Bar -->
-                  <div class="mt-3 relative flex items-center">
-                    <div class="absolute left-3 pointer-events-none">
-                      <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <!-- Promo Banner -->
+                    <div class="mt-2.5 p-3 rounded-2xl bg-gradient-to-r from-emerald-600 via-teal-700 to-cyan-800 text-white shadow-lg">
+                      <div class="flex items-center justify-between">
+                        <span class="text-[9px] uppercase font-bold tracking-widest bg-black/30 px-1.5 py-0.5 rounded">FEATURED DROP</span>
+                        <span class="text-[9px] text-emerald-200 font-bold">New</span>
+                      </div>
+                      <div class="text-xs font-black mt-1">${rawName} Experience</div>
+                      <div class="text-[9px] opacity-80 mt-0.5">Synthesized directly from your sketch drawing.</div>
                     </div>
-                    <input type="text" placeholder="Search ${rawName.toLowerCase()}..." class="w-full bg-slate-900 border border-slate-800 rounded-xl pl-8 pr-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500" />
-                  </div>
 
-                  <!-- Detected Hero / Feature Banner -->
-                  <div class="mt-2.5 p-3 rounded-2xl bg-gradient-to-r from-emerald-600 via-teal-700 to-cyan-800 text-white shadow-lg">
-                    <div class="flex items-center justify-between">
-                      <span class="text-[9px] uppercase font-bold tracking-widest bg-black/30 px-1.5 py-0.5 rounded">DETECTED UI REGION</span>
-                      <span class="text-[9px] text-emerald-200 font-bold">100% Match</span>
-                    </div>
-                    <div class="text-xs font-black mt-1">${rawName} Experience</div>
-                    <div class="text-[9px] opacity-80 mt-0.5">Custom components synthesized from your uploaded wireframe strokes.</div>
-                  </div>
-
-                  <!-- Layout Grid: 2 Column or Stacked Feed -->
-                  ${hasTwoColumns ? `
+                    <!-- Items Grid -->
                     <div class="grid grid-cols-2 gap-2 mt-3">
                       <div class="bg-slate-900 border border-slate-800/80 rounded-2xl p-2.5 flex flex-col justify-between">
-                        <div class="h-16 bg-slate-800/60 rounded-xl flex items-center justify-center text-slate-200 font-bold text-xs border border-white/5">
-                          <svg class="w-7 h-7 text-emerald-400" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+                        <div class="h-16 bg-slate-800/60 rounded-xl flex items-center justify-center text-3xl">
+                          🍕
                         </div>
                         <div class="mt-2">
-                          <div class="text-[11px] font-bold text-white truncate">Sketched Item 1</div>
-                          <div class="text-xs font-bold text-emerald-400 mt-0.5">$29.99</div>
+                          <div class="text-[11px] font-bold text-white truncate">Special Pizza</div>
+                          <div class="text-xs font-bold text-emerald-400 mt-0.5">$14.99</div>
                         </div>
-                        <button onclick="incrementDynamicCart()" class="mt-2 w-full py-1.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-[10px] rounded-lg transition active:scale-95 flex items-center justify-center gap-1">
+                        <button onclick="addItemToCart('Special Pizza', 14.99, '🍕')" class="mt-2 w-full py-1.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-[10px] rounded-lg transition active:scale-95 flex items-center justify-center gap-1 shadow-md shadow-emerald-500/10">
                           <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                          <span>Select Item</span>
+                          <span>+ Add to Cart</span>
                         </button>
                       </div>
 
                       <div class="bg-slate-900 border border-slate-800/80 rounded-2xl p-2.5 flex flex-col justify-between">
-                        <div class="h-16 bg-slate-800/60 rounded-xl flex items-center justify-center text-slate-200 font-bold text-xs border border-white/5">
-                          <svg class="w-7 h-7 text-cyan-400" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+                        <div class="h-16 bg-slate-800/60 rounded-xl flex items-center justify-center text-3xl">
+                          🍔
                         </div>
                         <div class="mt-2">
-                          <div class="text-[11px] font-bold text-white truncate">Sketched Item 2</div>
-                          <div class="text-xs font-bold text-emerald-400 mt-0.5">$14.50</div>
+                          <div class="text-[11px] font-bold text-white truncate">Gourmet Burger</div>
+                          <div class="text-xs font-bold text-emerald-400 mt-0.5">$9.50</div>
                         </div>
-                        <button onclick="incrementDynamicCart()" class="mt-2 w-full py-1.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-[10px] rounded-lg transition active:scale-95 flex items-center justify-center gap-1">
+                        <button onclick="addItemToCart('Gourmet Burger', 9.50, '🍔')" class="mt-2 w-full py-1.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-[10px] rounded-lg transition active:scale-95 flex items-center justify-center gap-1 shadow-md shadow-emerald-500/10">
                           <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                          <span>Select Item</span>
+                          <span>+ Add to Cart</span>
                         </button>
                       </div>
                     </div>
-                  ` : `
+                  </div>
+                </div>
+
+                <!-- ================= 2. SHOPPING CART SCREEN ================= -->
+                <div id="phone-screen-cart" class="hidden flex-1 flex flex-col justify-between overflow-y-auto">
+                  <div>
+                    <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                      <button onclick="navigatePhoneScreen('home')" class="text-xs text-slate-400 hover:text-white flex items-center gap-1">
+                        ← Back
+                      </button>
+                      <h4 class="text-xs font-bold text-white">Your Cart (<span class="cart-badge-count">1</span>)</h4>
+                      <div class="w-5"></div>
+                    </div>
+
+                    <!-- Cart Item Rows -->
+                    <div id="cartItemsList" class="space-y-2 mt-3">
+                      <!-- Rendered dynamically -->
+                    </div>
+
+                    <!-- Price Summary Card -->
+                    <div class="mt-4 p-3 rounded-2xl bg-surface-900 border border-white/5 space-y-1.5 text-[11px]">
+                      <div class="flex items-center justify-between text-slate-400">
+                        <span>Subtotal</span>
+                        <span id="cartSubtotal" class="font-bold text-white">$12.99</span>
+                      </div>
+                      <div class="flex items-center justify-between text-slate-400">
+                        <span>Tax & Packaging</span>
+                        <span class="font-bold text-white">$2.50</span>
+                      </div>
+                      <div class="pt-2 border-t border-white/5 flex items-center justify-between font-bold text-xs text-white">
+                        <span>Total Due</span>
+                        <span id="cartTotal" class="text-emerald-400 font-black text-sm">$15.49</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Checkout Button -->
+                  <button onclick="checkoutOrder()" class="mt-3 w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black text-xs rounded-xl shadow-lg transition active:scale-95 flex items-center justify-center gap-2">
+                    <span>🚀 Confirm Order & Pay</span>
+                  </button>
+                </div>
+
+                <!-- ================= 3. SEARCH SCREEN ================= -->
+                <div id="phone-screen-search" class="hidden flex-1 flex flex-col justify-between overflow-y-auto">
+                  <div>
+                    <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                      <h4 class="text-xs font-bold text-white">Search & Explore</h4>
+                      <button onclick="navigatePhoneScreen('home')" class="text-xs text-slate-400 hover:text-white">Done</button>
+                    </div>
+
+                    <div class="mt-3 relative flex items-center">
+                      <div class="absolute left-3 pointer-events-none">
+                        <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                      </div>
+                      <input type="text" value="Pizza" placeholder="Search menu..." class="w-full bg-slate-900 border border-slate-800 rounded-xl pl-8 pr-3 py-1.5 text-xs text-white" />
+                    </div>
+
+                    <!-- Category Pills -->
+                    <div class="flex items-center gap-1.5 mt-2.5 overflow-x-auto text-[10px]">
+                      <span class="px-2.5 py-1 rounded-full bg-emerald-500 text-slate-950 font-bold">All</span>
+                      <span class="px-2.5 py-1 rounded-full bg-surface-900 border border-white/5 text-slate-300">Trending</span>
+                      <span class="px-2.5 py-1 rounded-full bg-surface-900 border border-white/5 text-slate-300">Fast Food</span>
+                      <span class="px-2.5 py-1 rounded-full bg-surface-900 border border-white/5 text-slate-300">Drinks</span>
+                    </div>
+
+                    <!-- Search Results -->
                     <div class="space-y-2 mt-3">
-                      <div class="bg-slate-900 border border-slate-800/80 rounded-2xl p-3 flex items-center justify-between">
-                        <div class="flex items-center gap-2.5">
-                          <div class="w-10 h-10 rounded-xl bg-slate-800/80 flex items-center justify-center text-emerald-400">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
-                          </div>
+                      <div class="p-2.5 rounded-2xl bg-surface-900 border border-white/5 flex items-center justify-between text-xs">
+                        <div class="flex items-center gap-2">
+                          <span class="text-xl">🍕</span>
                           <div>
-                            <div class="text-xs font-bold text-white">Interactive Feed Item</div>
-                            <div class="text-[10px] text-slate-400">Detected from vertical ink contour</div>
+                            <div class="font-bold text-white text-[11px]">Margherita Deluxe</div>
+                            <div class="text-[9px] text-emerald-400 font-bold">$12.99 • ★ 4.9</div>
                           </div>
                         </div>
-                        <button onclick="incrementDynamicCart()" class="px-2.5 py-1.5 bg-emerald-500 text-slate-950 font-bold text-[10px] rounded-lg">
+                        <button onclick="addItemToCart('Margherita Deluxe', 12.99, '🍕')" class="px-2 py-1 bg-emerald-500 text-slate-950 font-bold text-[10px] rounded-lg">
+                          + Add
+                        </button>
+                      </div>
+
+                      <div class="p-2.5 rounded-2xl bg-surface-900 border border-white/5 flex items-center justify-between text-xs">
+                        <div class="flex items-center gap-2">
+                          <span class="text-xl">🌮</span>
+                          <div>
+                            <div class="font-bold text-white text-[11px]">Street Tacos</div>
+                            <div class="text-[9px] text-emerald-400 font-bold">$8.99 • ★ 4.8</div>
+                          </div>
+                        </div>
+                        <button onclick="addItemToCart('Street Tacos', 8.99, '🌮')" class="px-2 py-1 bg-emerald-500 text-slate-950 font-bold text-[10px] rounded-lg">
                           + Add
                         </button>
                       </div>
                     </div>
-                  `}
+                  </div>
                 </div>
 
-                <!-- Bottom Navigation Bar with Sharp Inline SVG Icons -->
-                <div class="pt-2 border-t border-slate-800/80 flex items-center justify-around text-slate-400 text-[10px]">
-                  <button onclick="switchPhoneTab(this, 'Home')" class="text-emerald-400 font-bold flex flex-col items-center transition">
+                <!-- ================= 4. PROFILE SCREEN ================= -->
+                <div id="phone-screen-profile" class="hidden flex-1 flex flex-col justify-between overflow-y-auto">
+                  <div>
+                    <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                      <h4 class="text-xs font-bold text-white">User Profile</h4>
+                      <span class="text-[9px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold">VERIFIED</span>
+                    </div>
+
+                    <div class="p-3 mt-3 rounded-2xl bg-surface-900 border border-white/5 flex items-center gap-3">
+                      <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center font-bold text-sm text-slate-950">
+                        GW
+                      </div>
+                      <div>
+                        <div class="text-xs font-bold text-white">Hackathon Creator</div>
+                        <div class="text-[10px] text-slate-400">creator@ghostwriter.app</div>
+                      </div>
+                    </div>
+
+                    <div class="mt-3 space-y-1.5 text-xs">
+                      <div class="p-2.5 rounded-xl bg-surface-900 border border-white/5 flex items-center justify-between text-slate-300">
+                        <span>📦 Past Orders (3)</span>
+                        <span class="text-slate-500">›</span>
+                      </div>
+                      <div class="p-2.5 rounded-xl bg-surface-900 border border-white/5 flex items-center justify-between text-slate-300">
+                        <span>💳 Saved Cards (2)</span>
+                        <span class="text-slate-500">›</span>
+                      </div>
+                      <div class="p-2.5 rounded-xl bg-surface-900 border border-white/5 flex items-center justify-between text-slate-300">
+                        <span>🔔 Notifications</span>
+                        <span class="text-emerald-400 font-bold text-[10px]">ON</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <button onclick="alert('Logged out safely.')" class="w-full py-2.5 rounded-xl bg-surface-900 border border-rose-500/30 text-rose-400 font-bold text-xs mt-3">
+                    Sign Out
+                  </button>
+                </div>
+
+                <!-- ================= 5. SUCCESS CONFIRMATION SCREEN ================= -->
+                <div id="phone-screen-success" class="hidden flex-1 flex flex-col items-center justify-center text-center p-4 space-y-3">
+                  <div class="w-14 h-14 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-2xl font-black border border-emerald-500/40 animate-bounce">
+                    ✓
+                  </div>
+                  <div>
+                    <h4 class="text-sm font-bold text-white">Order Confirmed!</h4>
+                    <p class="text-[10px] text-slate-400 mt-1">Estimated delivery: 25 minutes</p>
+                  </div>
+                  <div class="p-3 rounded-2xl bg-surface-900 border border-white/5 text-[10px] text-slate-300 w-full">
+                    <div>Order Ref: #GW-9824</div>
+                    <div class="text-emerald-400 font-bold mt-0.5">Paid via GhostWriter Sandbox</div>
+                  </div>
+                  <button onclick="navigatePhoneScreen('home')" class="w-full py-2.5 bg-emerald-500 text-slate-950 font-bold text-xs rounded-xl shadow-md">
+                    ← Back to Store
+                  </button>
+                </div>
+
+                <!-- ================= BOTTOM NAVIGATION BAR ================= -->
+                <div class="pt-2 border-t border-slate-800/80 flex items-center justify-around text-slate-400 text-[10px] mt-2">
+                  <button data-tab="home" onclick="navigatePhoneScreen('home')" class="phone-nav-btn text-emerald-400 font-bold flex flex-col items-center transition">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
                     <span class="text-[8px] mt-0.5">Home</span>
                   </button>
-                  <button onclick="switchPhoneTab(this, 'Search')" class="hover:text-white flex flex-col items-center transition">
+                  <button data-tab="search" onclick="navigatePhoneScreen('search')" class="phone-nav-btn hover:text-white flex flex-col items-center transition">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                     <span class="text-[8px] mt-0.5">Search</span>
                   </button>
-                  <button onclick="switchPhoneTab(this, 'Orders')" class="hover:text-white flex flex-col items-center transition">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="12" y2="14"/></svg>
-                    <span class="text-[8px] mt-0.5">Orders</span>
+                  <button data-tab="cart" onclick="navigatePhoneScreen('cart')" class="phone-nav-btn hover:text-white flex flex-col items-center transition relative">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+                    <span class="text-[8px] mt-0.5">Cart</span>
                   </button>
-                  <button onclick="switchPhoneTab(this, 'Profile')" class="hover:text-white flex flex-col items-center transition">
+                  <button data-tab="profile" onclick="navigatePhoneScreen('profile')" class="phone-nav-btn hover:text-white flex flex-col items-center transition">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                     <span class="text-[8px] mt-0.5">Profile</span>
                   </button>
                 </div>
+
               </div>
             `;
 
@@ -1634,15 +1867,143 @@ const styles = StyleSheet.create({
       });
     }
 
-    let dynamicCartCount = 0;
-    function incrementDynamicCart() {
-      dynamicCartCount++;
-      const badge = document.getElementById('dynamicCartBadge');
-      if (badge) {
-        badge.innerText = dynamicCartCount;
-        badge.classList.add('scale-150');
-        setTimeout(() => badge.classList.remove('scale-150'), 200);
+    // GLOBAL MULTI-SCREEN MOBILE RUNTIME STATE
+    const MOBILE_STATE = {
+      activeTab: 'home',
+      cartItems: [
+        { id: 1, name: 'Featured Item 1', price: 12.99, qty: 1, icon: '🍕' }
+      ]
+    };
+
+    function navigatePhoneScreen(screenName) {
+      MOBILE_STATE.activeTab = screenName;
+      
+      // Hide all screens
+      const screens = ['home', 'cart', 'search', 'profile', 'success'];
+      screens.forEach(s => {
+        const el = document.getElementById(`phone-screen-${s}`);
+        if (el) el.classList.add('hidden');
+      });
+
+      // Show selected screen
+      const target = document.getElementById(`phone-screen-${screenName}`);
+      if (target) {
+        target.classList.remove('hidden');
+        target.classList.add('animate-fade-in');
       }
+
+      // Update bottom nav highlighting
+      const navBtns = document.querySelectorAll('.phone-nav-btn');
+      navBtns.forEach(btn => {
+        const tab = btn.getAttribute('data-tab');
+        if (tab === screenName || (tab === 'orders' && screenName === 'cart')) {
+          btn.className = "phone-nav-btn text-emerald-400 font-bold flex flex-col items-center transition scale-105";
+        } else {
+          btn.className = "phone-nav-btn text-slate-400 hover:text-white flex flex-col items-center transition";
+        }
+      });
+
+      if (screenName === 'cart') renderCartScreen();
+    }
+
+    function addItemToCart(name, price, icon) {
+      const existing = MOBILE_STATE.cartItems.find(i => i.name === name);
+      if (existing) {
+        existing.qty += 1;
+      } else {
+        MOBILE_STATE.cartItems.push({
+          id: Date.now(),
+          name: name || 'New Item',
+          price: parseFloat(price) || 19.99,
+          qty: 1,
+          icon: icon || '⚡'
+        });
+      }
+      updateCartBadgeCount();
+
+      // Small bounce on cart badge
+      const badge = document.getElementById('phoneCartBadge');
+      if (badge) {
+        badge.classList.add('scale-150', 'bg-amber-400');
+        setTimeout(() => badge.classList.remove('scale-150', 'bg-amber-400'), 250);
+      }
+    }
+
+    function updateCartBadgeCount() {
+      const totalCount = MOBILE_STATE.cartItems.reduce((sum, item) => sum + item.qty, 0);
+      const badges = document.querySelectorAll('.cart-badge-count');
+      badges.forEach(b => {
+        b.innerText = totalCount;
+      });
+    }
+
+    function changeCartItemQty(id, delta) {
+      const item = MOBILE_STATE.cartItems.find(i => i.id === id);
+      if (item) {
+        item.qty += delta;
+        if (item.qty <= 0) {
+          MOBILE_STATE.cartItems = MOBILE_STATE.cartItems.filter(i => i.id !== id);
+        }
+      }
+      renderCartScreen();
+      updateCartBadgeCount();
+    }
+
+    function renderCartScreen() {
+      const container = document.getElementById('cartItemsList');
+      const subtotalEl = document.getElementById('cartSubtotal');
+      const totalEl = document.getElementById('cartTotal');
+      if (!container) return;
+
+      if (MOBILE_STATE.cartItems.length === 0) {
+        container.innerHTML = `
+          <div class="py-12 text-center text-slate-500 space-y-2">
+            <div class="text-3xl">🛒</div>
+            <div class="text-xs font-bold text-slate-400">Your Cart is Empty</div>
+            <p class="text-[10px]">Add items from the Home screen</p>
+          </div>
+        `;
+        if (subtotalEl) subtotalEl.innerText = "$0.00";
+        if (totalEl) totalEl.innerText = "$0.00";
+        return;
+      }
+
+      let subtotal = 0;
+      container.innerHTML = MOBILE_STATE.cartItems.map(item => {
+        const itemTotal = item.price * item.qty;
+        subtotal += itemTotal;
+        return `
+          <div class="p-2.5 rounded-2xl bg-surface-900 border border-white/5 flex items-center justify-between text-xs">
+            <div class="flex items-center gap-2">
+              <span class="text-lg">${item.icon}</span>
+              <div>
+                <div class="font-bold text-white text-[11px]">${item.name}</div>
+                <div class="text-[10px] text-emerald-400 font-bold">$${item.price.toFixed(2)}</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <button onclick="changeCartItemQty(${item.id}, -1)" class="w-5 h-5 rounded-md bg-surface-800 text-slate-300 flex items-center justify-center font-bold text-xs hover:bg-rose-500 hover:text-white transition">-</button>
+              <span class="font-bold text-white text-xs w-3 text-center">${item.qty}</span>
+              <button onclick="changeCartItemQty(${item.id}, 1)" class="w-5 h-5 rounded-md bg-surface-800 text-slate-300 flex items-center justify-center font-bold text-xs hover:bg-emerald-500 hover:text-slate-950 transition">+</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      const total = subtotal + 2.50; // $2.50 tax & fee
+      if (subtotalEl) subtotalEl.innerText = `$${subtotal.toFixed(2)}`;
+      if (totalEl) totalEl.innerText = `$${total.toFixed(2)}`;
+    }
+
+    function checkoutOrder() {
+      if (MOBILE_STATE.cartItems.length === 0) {
+        alert("Cart is empty! Add an item first.");
+        return;
+      }
+      MOBILE_STATE.cartItems = [];
+      updateCartBadgeCount();
+      navigatePhoneScreen('success');
+      triggerConfetti();
     }
     function downloadCodeFile() {
       const code = document.getElementById('codeView').innerText;
@@ -1688,26 +2049,11 @@ const styles = StyleSheet.create({
 
     // Interactive in-phone tab switcher
     function switchPhoneTab(btn, tabName) {
-      // Toggle active states on the bottom navigation bar
-      const parentNav = btn.parentElement;
-      parentNav.querySelectorAll('button').forEach(b => {
-        b.className = "hover:text-white flex flex-col items-center transition text-slate-400";
-      });
-      btn.className = "text-amber-400 font-bold flex flex-col items-center transition scale-110";
-
-      // If user clicked search or cart
-      if (tabName === 'Search') {
-        const searchInput = document.querySelector('#liveAppMount input');
-        if (searchInput) {
-          searchInput.focus();
-          searchInput.classList.add('ring-2', 'ring-amber-500');
-          setTimeout(() => searchInput.classList.remove('ring-2', 'ring-amber-500'), 1200);
-        }
-      } else if (tabName === 'Cart' || tabName === 'Orders') {
-        alert('🛒 Orders Tab: Your cart has items ready for checkout!');
-      } else if (tabName === 'Profile') {
-        alert('👤 Profile: Logged in as Demo User (GhostWriter Verified)');
-      }
+      const lower = (tabName || '').toLowerCase();
+      if (lower === 'home') navigatePhoneScreen('home');
+      else if (lower === 'search') navigatePhoneScreen('search');
+      else if (lower === 'orders' || lower === 'cart') navigatePhoneScreen('cart');
+      else if (lower === 'profile') navigatePhoneScreen('profile');
     }
     let cartValue = 0;
     function incrementCart() {

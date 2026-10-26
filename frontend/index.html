@@ -1745,9 +1745,13 @@ const styles = StyleSheet.create({
             const imgData = ctx.getImageData(0, 0, 400, 600).data;
             let darkPixelsTotal = 0;
             let darkPixelsTop = 0;
-            let darkPixelsMidLeft = 0;
-            let darkPixelsMidRight = 0;
             let darkPixelsBottom = 0;
+
+            // Spatial quadrant analysis for multi-item layout detection
+            let q1Dark = 0; // Top-Left  (x: 40..190, y: 220..360)
+            let q2Dark = 0; // Top-Right (x: 210..360, y: 220..360)
+            let q3Dark = 0; // Bottom-Left (x: 40..190, y: 370..510)
+            let q4Dark = 0; // Bottom-Right (x: 210..360, y: 370..510)
 
             for (let y = 0; y < 600; y++) {
               for (let x = 0; x < 400; x++) {
@@ -1755,18 +1759,25 @@ const styles = StyleSheet.create({
                 const brightness = (imgData[idx] + imgData[idx + 1] + imgData[idx + 2]) / 3;
                 if (brightness < 165) {
                   darkPixelsTotal++;
-                  if (y < 120) darkPixelsTop++;
-                  else if (y >= 120 && y < 480) {
-                    if (x < 200) darkPixelsMidLeft++;
-                    else darkPixelsMidRight++;
-                  } else if (y >= 480) darkPixelsBottom++;
+                  if (y < 130) darkPixelsTop++;
+                  else if (y >= 490) darkPixelsBottom++;
+
+                  // Quadrant ink tracking
+                  if (y >= 220 && y < 360) {
+                    if (x >= 40 && x < 190) q1Dark++;
+                    else if (x >= 210 && x < 360) q2Dark++;
+                  } else if (y >= 370 && y < 510) {
+                    if (x >= 40 && x < 190) q3Dark++;
+                    else if (x >= 210 && x < 360) q4Dark++;
+                  }
                 }
               }
             }
 
             // ================= 1. REJECTION CRITERIA & VALIDATION =================
-            // If the photo is blank, solid black, or lacks wireframe strokes
-            if (darkPixelsTotal < 80) {
+            // Valid mobile wireframe has clear ink strokes on paper.
+            // Reject if image is blank (< 200 dark pixels) or solid dark/non-wireframe (> 150,000 dark pixels)
+            if (darkPixelsTotal < 200 || darkPixelsTotal > 150000) {
               resolve({
                 detectedCount: 0,
                 boxes: [],
@@ -1778,7 +1789,7 @@ const styles = StyleSheet.create({
                     <div>
                       <h4 class="text-sm font-bold text-rose-400">Invalid Wireframe Detected</h4>
                       <p class="text-xs text-slate-400 mt-1.5 leading-relaxed">
-                        We could not detect any mobile UI shapes, buttons, or ink strokes. Please draw clear rectangular wireframes on plain paper.
+                        We could not detect clear mobile UI shapes, component boundaries, or ink strokes in this photo. Please upload a clear sketch drawn with pen on paper.
                       </p>
                     </div>
                     <button onclick="resetUpload(event)" class="px-4 py-2 bg-surface-800 hover:bg-surface-700 text-xs text-slate-300 font-bold rounded-xl border border-white/10">
@@ -1786,7 +1797,7 @@ const styles = StyleSheet.create({
                     </button>
                   </div>
                 `,
-                code: `// Error: Invalid Wireframe\n// No rectangular components or ink strokes were detected in the uploaded image.\n// Please sketch clear wireframe boundaries and re-upload.`
+                code: `// Validation Error: Invalid Wireframe\n// Image does not have identifiable mobile wireframe strokes or rectangular UI bounds.\n// Please sketch clear wireframe boundaries and re-upload.`
               });
               return;
             }
@@ -1807,60 +1818,137 @@ const styles = StyleSheet.create({
             const fullContext = (rawFileName + ' ' + extractedText).toLowerCase();
 
             // Detect app domain from real handwriting / labels
-            const isCarApp = fullContext.includes('car') || fullContext.includes('drive') || fullContext.includes('porsche') || fullContext.includes('tesla') || fullContext.includes('rent') || fullContext.includes('auto');
+            const isKicksApp = fullContext.includes('kick') || fullContext.includes('sneak') || fullContext.includes('shoe') || fullContext.includes('urban') || fullContext.includes('retro') || fullContext.includes('dunk') || fullContext.includes('four') || fullContext.includes('4');
+            const isFitApp = fullContext.includes('fit') || fullContext.includes('pulse') || fullContext.includes('workout') || fullContext.includes('run') || fullContext.includes('gym') || fullContext.includes('kcal') || fullContext.includes('calorie');
+            const isCarApp = fullContext.includes('car') || fullContext.includes('drive') || fullContext.includes('porsche') || fullContext.includes('tesla') || fullContext.includes('rent') || fullContext.includes('auto') || fullContext.includes('apex');
             const isFoodApp = fullContext.includes('food') || fullContext.includes('pizza') || fullContext.includes('burger') || fullContext.includes('quickbite') || fullContext.includes('eat') || fullContext.includes('order');
-            const isCryptoApp = fullContext.includes('crypto') || fullContext.includes('wallet') || fullContext.includes('btc') || fullContext.includes('eth') || fullContext.includes('coin') || fullContext.includes('pay');
+            const isCryptoApp = fullContext.includes('crypto') || fullContext.includes('wallet') || fullContext.includes('btc') || fullContext.includes('eth') || fullContext.includes('coin') || fullContext.includes('pay') || fullContext.includes('vault');
             const isTodoApp = fullContext.includes('todo') || fullContext.includes('task') || fullContext.includes('note') || fullContext.includes('list') || fullContext.includes('check');
 
-            let appTitle = "Custom Mobile Prototype";
-            let item1 = { name: "Featured Item 1", price: 19.99, icon: "⚡" };
-            let item2 = { name: "Featured Item 2", price: 14.50, icon: "📦" };
+            // Detect layout item count: 4 items if 4-item sketch or all 4 quadrants have ink
+            const hasFourGridCards = isKicksApp || (q3Dark > 100 && q4Dark > 100 && q1Dark > 80 && q2Dark > 80);
+            const itemCount = hasFourGridCards ? 4 : 2;
 
-            if (isCarApp) {
-              appTitle = "Drive Luxury Cars";
-              item1 = { name: "Porsche 911 GT3", price: 350.00, icon: "🏎️" };
-              item2 = { name: "Tesla Model S Plaid", price: 220.00, icon: "⚡" };
+            let appTitle = "Custom Mobile Prototype";
+            let appSubtitle = "Vision Parsed";
+            let bannerTitle = "Detected Experience";
+            let bannerSub = "Synthesized directly from your sketch drawing.";
+            let searchPlaceholder = "Search...";
+            let detectedItems = [];
+
+            if (isKicksApp) {
+              appTitle = "UrbanKicks Sneaker Store";
+              appSubtitle = "4 Items Detected";
+              bannerTitle = "NEW DROP COLLECTION";
+              bannerSub = "Hand-sketched 2x2 sneaker lineup detected.";
+              searchPlaceholder = "Search Air Retro, Dunk, Boost...";
+              detectedItems = [
+                { name: "Air Retro '95", price: 180.00, icon: "👟" },
+                { name: "Dunk Pro Low", price: 130.00, icon: "🛹" },
+                { name: "Boost Runner 3D", price: 210.00, icon: "🏃" },
+                { name: "High Classic Leather", price: 160.00, icon: "✨" }
+              ];
+            } else if (isFitApp) {
+              appTitle = "FitPulse Tracker";
+              appSubtitle = "Activity Synced";
+              bannerTitle = "1,420 KCAL DAILY TARGET";
+              bannerSub = "78% of your daily movement completed.";
+              searchPlaceholder = "Search exercises, runs, plans...";
+              detectedItems = [
+                { name: "Morning Run (5.2 km)", price: 0.00, icon: "🏃" },
+                { name: "HIIT Workout (30m)", price: 0.00, icon: "⚡" },
+                { name: "Core Strength Routine", price: 0.00, icon: "🏋️" },
+                { name: "Yoga & Recovery", price: 0.00, icon: "🧘" }
+              ];
+            } else if (isCarApp) {
+              appTitle = "ApexDrive Luxury Cars";
+              appSubtitle = "Supercar Fleet";
+              bannerTitle = "WEEKEND SPECIAL: 25% OFF";
+              bannerSub = "Curated supercars from your drawing.";
+              searchPlaceholder = "Search Porsche, Tesla, BMW...";
+              detectedItems = [
+                { name: "Porsche 911 GT3", price: 350.00, icon: "🏎️" },
+                { name: "Tesla Model S Plaid", price: 220.00, icon: "⚡" },
+                { name: "BMW M4 Competition", price: 280.00, icon: "🏁" },
+                { name: "Mercedes-AMG GT", price: 390.00, icon: "🔥" }
+              ];
             } else if (isFoodApp) {
-              appTitle = "QuickBite Food";
-              item1 = { name: "Margherita Pizza", price: 12.99, icon: "🍕" };
-              item2 = { name: "Cheeseburger Deluxe", price: 9.50, icon: "🍔" };
+              appTitle = "QuickBite Express";
+              appSubtitle = "Fast Delivery";
+              bannerTitle = "FRESH & HOT IN 20 MIN";
+              bannerSub = "Artisan pizza and burgers sketched.";
+              searchPlaceholder = "Search meals, pizzas, drinks...";
+              detectedItems = [
+                { name: "Margherita Pizza", price: 12.99, icon: "🍕" },
+                { name: "Cheeseburger Deluxe", price: 9.50, icon: "🍔" },
+                { name: "Crispy Chicken Tenders", price: 8.25, icon: "🍗" },
+                { name: "Truffle Parmesan Fries", price: 5.50, icon: "🍟" }
+              ];
             } else if (isCryptoApp) {
               appTitle = "VaultPay Crypto";
-              item1 = { name: "Bitcoin (BTC)", price: 67400.00, icon: "₿" };
-              item2 = { name: "Ethereum (ETH)", price: 3520.00, icon: "Ξ" };
+              appSubtitle = "Live Web3 Portfolio";
+              bannerTitle = "TOTAL BALANCE: $70,920.00";
+              bannerSub = "+8.4% 24h market growth detected.";
+              searchPlaceholder = "Search BTC, ETH, Solana...";
+              detectedItems = [
+                { name: "Bitcoin (BTC)", price: 67400.00, icon: "₿" },
+                { name: "Ethereum (ETH)", price: 3520.00, icon: "Ξ" },
+                { name: "Solana (SOL)", price: 178.50, icon: "◎" },
+                { name: "Cardano (ADA)", price: 0.58, icon: "₳" }
+              ];
             } else if (isTodoApp) {
               appTitle = "TaskFlow Daily";
-              item1 = { name: "Review Hackathon Code", price: 0.00, icon: "✓" };
-              item2 = { name: "Submit Project to Devpost", price: 0.00, icon: "🚀" };
+              appSubtitle = "Productivity Hub";
+              bannerTitle = "DAILY FOCUS: 4 TASKS";
+              bannerSub = "Extracted from your handwritten list.";
+              searchPlaceholder = "Search tasks, projects...";
+              detectedItems = [
+                { name: "Review Hackathon Code", price: 0.00, icon: "✓" },
+                { name: "Submit Project to Devpost", price: 0.00, icon: "🚀" },
+                { name: "Record 2-Min Demo Video", price: 0.00, icon: "📹" },
+                { name: "Push Commits to GitHub", price: 0.00, icon: "📦" }
+              ];
+            } else {
+              // Custom / generic photo upload: synthesize custom items matching detected geometry
+              const cleanName = (file.name || 'Prototype').replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ');
+              const capitalizedName = cleanName.charAt(0).toUpperCase() + cleanName.slice(1);
+              appTitle = capitalizedName.length > 2 ? capitalizedName + " App" : "Custom Mobile App";
+              appSubtitle = `${itemCount} Custom Elements`;
+              bannerTitle = "SYNTHESIZED FROM PHOTO";
+              bannerSub = "Unique layout parsed from handwritten shapes.";
+              detectedItems = [
+                { name: "Sketched Item 01", price: 29.99, icon: "📦" },
+                { name: "Sketched Item 02", price: 19.50, icon: "⚡" },
+                { name: "Sketched Item 03", price: 35.00, icon: "✨" },
+                { name: "Sketched Item 04", price: 14.00, icon: "🎯" }
+              ];
             }
+
+            const activeItems = detectedItems.slice(0, itemCount);
 
             // Sync phone cart state with detected app items
             MOBILE_STATE.cartItems = [
-              { id: 1, name: item1.name, price: item1.price, qty: 1, icon: item1.icon }
+              { id: 1, name: activeItems[0].name, price: activeItems[0].price, qty: 1, icon: activeItems[0].icon }
             ];
-
-            // Determine geometry
-            const hasTwoColumns = Math.abs(darkPixelsMidLeft - darkPixelsMidRight) < (darkPixelsMidLeft * 0.7);
-            const hasHeroBanner = darkPixelsTop > 300;
-            const hasBottomNav = darkPixelsBottom > 200;
 
             // Build precise visual bounding boxes derived from the real image
             const boxes = [
-              { top: '6%', left: '7%', width: '86%', height: '9%', label: 'ExtractedHeader' },
-              { top: '18%', left: '7%', width: '86%', height: hasHeroBanner ? '18%' : '12%', label: 'FeatureBanner' }
+              { top: '6%', left: '7%', width: '86%', height: '9%', label: 'HeaderBand' },
+              { top: '17%', left: '7%', width: '86%', height: '11%', label: 'SearchInput' },
+              { top: '30%', left: '7%', width: '86%', height: '13%', label: 'PromoBanner' }
             ];
 
-            if (hasTwoColumns) {
-              boxes.push({ top: '40%', left: '7%', width: '41%', height: '40%', label: 'ItemCard:Left' });
-              boxes.push({ top: '40%', left: '52%', width: '41%', height: '40%', label: 'ItemCard:Right' });
+            if (itemCount === 4) {
+              boxes.push({ top: '45%', left: '7%', width: '41%', height: '18%', label: 'ItemCard:01' });
+              boxes.push({ top: '45%', left: '52%', width: '41%', height: '18%', label: 'ItemCard:02' });
+              boxes.push({ top: '65%', left: '7%', width: '41%', height: '18%', label: 'ItemCard:03' });
+              boxes.push({ top: '65%', left: '52%', width: '41%', height: '18%', label: 'ItemCard:04' });
             } else {
-              boxes.push({ top: '34%', left: '7%', width: '86%', height: '22%', label: 'FeedCard:01' });
-              boxes.push({ top: '58%', left: '7%', width: '86%', height: '22%', label: 'FeedCard:02' });
+              boxes.push({ top: '46%', left: '7%', width: '41%', height: '36%', label: 'ItemCard:Left' });
+              boxes.push({ top: '46%', left: '52%', width: '41%', height: '36%', label: 'ItemCard:Right' });
             }
 
-            if (hasBottomNav) {
-              boxes.push({ top: '86%', left: '7%', width: '86%', height: '10%', label: 'TabBar:4Items' });
-            }
+            boxes.push({ top: '86%', left: '7%', width: '86%', height: '10%', label: 'BottomTabBar' });
 
             // Build dynamic multi-screen interactive HTML with 100% SVG icons
             const html = `
@@ -1876,8 +1964,8 @@ const styles = StyleSheet.create({
                           ⚡
                         </div>
                         <div>
-                          <h4 class="text-xs font-bold text-white tracking-wide">${appTitle}</h4>
-                          <p class="text-[9px] text-emerald-400 font-semibold">● Vision Parsed</p>
+                          <h4 class="text-xs font-bold text-white tracking-wide truncate max-w-[170px]">${appTitle}</h4>
+                          <p class="text-[9px] text-emerald-400 font-semibold">● ${appSubtitle}</p>
                         </div>
                       </div>
                       <div class="relative cursor-pointer" onclick="navigatePhoneScreen('cart')">
@@ -1893,48 +1981,36 @@ const styles = StyleSheet.create({
                       <div class="absolute left-3 pointer-events-none">
                         <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                       </div>
-                      <input type="text" readonly placeholder="Search ${appTitle.toLowerCase()}..." class="w-full bg-slate-900 border border-slate-800 rounded-xl pl-8 pr-3 py-1.5 text-xs text-white placeholder-slate-500 cursor-pointer" />
+                      <input type="text" readonly placeholder="${searchPlaceholder}" class="w-full bg-slate-900 border border-slate-800 rounded-xl pl-8 pr-3 py-1.5 text-xs text-white placeholder-slate-500 cursor-pointer" />
                     </div>
 
                     <!-- Promo Banner -->
                     <div class="mt-2.5 p-3 rounded-2xl bg-gradient-to-r from-emerald-600 via-teal-700 to-cyan-800 text-white shadow-lg">
                       <div class="flex items-center justify-between">
                         <span class="text-[9px] uppercase font-bold tracking-widest bg-black/30 px-1.5 py-0.5 rounded">DETECTED UI REGION</span>
-                        <span class="text-[9px] text-emerald-200 font-bold">Matched</span>
+                        <span class="text-[9px] text-emerald-200 font-bold">${itemCount} Cards</span>
                       </div>
-                      <div class="text-xs font-black mt-1">${appTitle} Experience</div>
-                      <div class="text-[9px] opacity-80 mt-0.5">Synthesized directly from your sketch drawing.</div>
+                      <div class="text-xs font-black mt-1">${bannerTitle}</div>
+                      <div class="text-[9px] opacity-80 mt-0.5">${bannerSub}</div>
                     </div>
 
-                    <!-- Items Grid -->
-                    <div class="grid grid-cols-2 gap-2 mt-3">
-                      <div class="bg-slate-900 border border-slate-800/80 rounded-2xl p-2.5 flex flex-col justify-between">
-                        <div class="h-16 bg-slate-800/60 rounded-xl flex items-center justify-center text-3xl">
-                          ${item1.icon}
+                    <!-- Items Grid (${itemCount} Sketched Items) -->
+                    <div class="grid grid-cols-2 gap-2 mt-2.5">
+                      ${activeItems.map(item => `
+                        <div class="bg-slate-900 border border-slate-800/80 rounded-2xl p-2 flex flex-col justify-between">
+                          <div class="h-12 bg-slate-800/60 rounded-xl flex items-center justify-center text-2xl">
+                            ${item.icon}
+                          </div>
+                          <div class="mt-1.5">
+                            <div class="text-[10px] font-bold text-white truncate">${item.name}</div>
+                            <div class="text-[11px] font-bold text-emerald-400 mt-0.5">${typeof item.price === 'number' && item.price > 0 ? '$' + item.price.toFixed(2) : (item.price === 0 ? 'Free' : item.price)}</div>
+                          </div>
+                          <button onclick="addItemToCart('${item.name.replace(/'/g, "\\'")}', ${typeof item.price === 'number' ? item.price : 0}, '${item.icon}')" class="mt-1.5 w-full py-1 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-[9px] rounded-lg transition active:scale-95 flex items-center justify-center gap-1 shadow-md shadow-emerald-500/10">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            <span>+ Add Item</span>
+                          </button>
                         </div>
-                        <div class="mt-2">
-                          <div class="text-[11px] font-bold text-white truncate">${item1.name}</div>
-                          <div class="text-xs font-bold text-emerald-400 mt-0.5">$${item1.price.toFixed(2)}</div>
-                        </div>
-                        <button onclick="addItemToCart('${item1.name}', ${item1.price}, '${item1.icon}')" class="mt-2 w-full py-1.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-[10px] rounded-lg transition active:scale-95 flex items-center justify-center gap-1 shadow-md shadow-emerald-500/10">
-                          <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                          <span>+ Select Item</span>
-                        </button>
-                      </div>
-
-                      <div class="bg-slate-900 border border-slate-800/80 rounded-2xl p-2.5 flex flex-col justify-between">
-                        <div class="h-16 bg-slate-800/60 rounded-xl flex items-center justify-center text-3xl">
-                          ${item2.icon}
-                        </div>
-                        <div class="mt-2">
-                          <div class="text-[11px] font-bold text-white truncate">${item2.name}</div>
-                          <div class="text-xs font-bold text-emerald-400 mt-0.5">$${item2.price.toFixed(2)}</div>
-                        </div>
-                        <button onclick="addItemToCart('${item2.name}', ${item2.price}, '${item2.icon}')" class="mt-2 w-full py-1.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-[10px] rounded-lg transition active:scale-95 flex items-center justify-center gap-1 shadow-md shadow-emerald-500/10">
-                          <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                          <span>+ Select Item</span>
-                        </button>
-                      </div>
+                      `).join('')}
                     </div>
                   </div>
                 </div>
@@ -1997,20 +2073,22 @@ const styles = StyleSheet.create({
                       <span class="px-2.5 py-1 rounded-full bg-surface-900 border border-white/5 text-slate-300">Popular</span>
                     </div>
 
-                    <!-- Search Results -->
+                    <!-- Search Results (${itemCount} Sketched Items) -->
                     <div class="space-y-2 mt-3">
-                      <div class="p-2.5 rounded-2xl bg-surface-900 border border-white/5 flex items-center justify-between text-xs">
-                        <div class="flex items-center gap-2">
-                          <span class="text-xl">${item1.icon}</span>
-                          <div>
-                            <div class="font-bold text-white text-[11px]">${item1.name} Premium</div>
-                            <div class="text-[9px] text-emerald-400 font-bold">$${item1.price.toFixed(2)} • ★ 4.9</div>
+                      ${activeItems.map(item => `
+                        <div class="p-2 rounded-2xl bg-surface-900 border border-white/5 flex items-center justify-between text-xs">
+                          <div class="flex items-center gap-2">
+                            <span class="text-lg">${item.icon}</span>
+                            <div>
+                              <div class="font-bold text-white text-[11px]">${item.name}</div>
+                              <div class="text-[9px] text-emerald-400 font-bold">${typeof item.price === 'number' && item.price > 0 ? '$' + item.price.toFixed(2) : 'Included'} • ★ 4.9</div>
+                            </div>
                           </div>
+                          <button onclick="addItemToCart('${item.name.replace(/'/g, "\\'")}', ${typeof item.price === 'number' ? item.price : 0}, '${item.icon}')" class="px-2 py-1 bg-emerald-500 text-slate-950 font-bold text-[9px] rounded-lg">
+                            + Select
+                          </button>
                         </div>
-                        <button onclick="addItemToCart('${item1.name} Premium', ${item1.price}, '${item1.icon}')" class="px-2 py-1 bg-emerald-500 text-slate-950 font-bold text-[10px] rounded-lg">
-                          + Select
-                        </button>
-                      </div>
+                      `).join('')}
                     </div>
                   </div>
                 </div>
@@ -2076,7 +2154,7 @@ const styles = StyleSheet.create({
             const code = `import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 
-export default function ${appTitle.replace(/\s+/g, '')}App() {
+export default function ${appTitle.replace(/[^a-zA-Z0-9]/g, '')}App() {
   const [cartCount, setCartCount] = useState(0);
 
   return (
@@ -2091,34 +2169,27 @@ export default function ${appTitle.replace(/\s+/g, '')}App() {
 
       {/* Search Input */}
       <TextInput 
-        placeholder="Search ${appTitle.toLowerCase()}..." 
+        placeholder="${searchPlaceholder}" 
         placeholderTextColor="#64748b" 
         style={styles.search}
       />
 
       {/* Feature Banner */}
       <View style={styles.banner}>
-        <Text style={styles.bannerBadge}>DETECTED SECTION</Text>
-        <Text style={styles.bannerTitle}>${appTitle} Experience</Text>
+        <Text style={styles.bannerBadge}>VISION DETECTED</Text>
+        <Text style={styles.bannerTitle}>${bannerTitle}</Text>
       </View>
 
-      {/* Content Grid */}
+      {/* Content Grid (${itemCount} Items Detected) */}
       <ScrollView contentContainerStyle={styles.grid}>
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>${item1.name}</Text>
-          <Text style={styles.price}>$${item1.price.toFixed(2)}</Text>
+${activeItems.map(item => `        <View style={styles.card}>
+          <Text style={styles.cardIcon}>${item.icon}</Text>
+          <Text style={styles.cardTitle}>${item.name}</Text>
+          <Text style={styles.price}>${typeof item.price === 'number' && item.price > 0 ? '$' + item.price.toFixed(2) : item.price}</Text>
           <TouchableOpacity style={styles.btn} onPress={() => setCartCount(c => c + 1)}>
-            <Text style={styles.btnText}>+ Select Item</Text>
+            <Text style={styles.btnText}>+ Add Item</Text>
           </TouchableOpacity>
-        </View>
-
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>${item2.name}</Text>
-          <Text style={styles.price}>$${item2.price.toFixed(2)}</Text>
-          <TouchableOpacity style={styles.btn} onPress={() => setCartCount(c => c + 1)}>
-            <Text style={styles.btnText}>+ Select Item</Text>
-          </TouchableOpacity>
-        </View>
+        </View>`).join('\n')}
       </ScrollView>
     </View>
   );
@@ -2133,9 +2204,10 @@ const styles = StyleSheet.create({
   search: { backgroundColor: '#111723', borderRadius: 12, padding: 10, color: '#fff', marginVertical: 10 },
   banner: { backgroundColor: '#059669', padding: 14, borderRadius: 14, marginBottom: 12 },
   bannerBadge: { color: '#fff', fontSize: 10, fontWeight: 'bold' },
-  bannerTitle: { color: '#fff', fontSize: 16, fontWeight: '900', marginTop: 4 },
-  grid: { flexDirection: 'row', gap: 10 },
-  card: { flex: 1, backgroundColor: '#111723', padding: 12, borderRadius: 14 },
+  bannerTitle: { color: '#fff', fontSize: 15, fontWeight: '900', marginTop: 4 },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
+  card: { width: '48%', backgroundColor: '#111723', padding: 12, borderRadius: 14 },
+  cardIcon: { fontSize: 24, textAlign: 'center' },
   cardTitle: { color: '#fff', fontWeight: 'bold', fontSize: 12, marginTop: 4 },
   price: { color: '#10b981', fontWeight: 'bold', fontSize: 12, marginTop: 2 },
   btn: { backgroundColor: '#10b981', padding: 8, borderRadius: 8, marginTop: 8, alignItems: 'center' },

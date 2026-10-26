@@ -35,6 +35,8 @@
     }
   </script>
   
+  <!-- Tesseract.js (Client-side Machine Learning OCR Engine) -->
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
   <!-- Embedded Self-Contained SVG Icon Component & Canvas Confetti -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <script>
@@ -297,7 +299,7 @@
                 Judge Presets (Instant Live Demos):
               </span>
             </div>
-            <div class="grid grid-cols-4 gap-2">
+            <div class="grid grid-cols-3 gap-2">
               <button onclick="loadDemoPreset('food')" class="p-2 rounded-xl bg-surface-800 hover:bg-surface-700/80 border border-emerald-500/40 text-left transition group">
                 <div class="text-[11px] font-bold text-amber-400 group-hover:translate-x-0.5 transition">🍕 QuickBite</div>
                 <div class="text-[9px] text-slate-400 mt-0.5">Food App</div>
@@ -305,10 +307,6 @@
               <button onclick="loadDemoPreset('ecommerce')" class="p-2 rounded-xl bg-surface-800 hover:bg-surface-700/80 border border-white/5 hover:border-emerald-500/30 text-left transition group">
                 <div class="text-[11px] font-bold text-emerald-400 group-hover:translate-x-0.5 transition">🛍️ ShopX</div>
                 <div class="text-[9px] text-slate-400 mt-0.5">E-commerce</div>
-              </button>
-              <button onclick="loadDemoPreset('fitness')" class="p-2 rounded-xl bg-surface-800 hover:bg-surface-700/80 border border-white/5 hover:border-cyan-500/30 text-left transition group">
-                <div class="text-[11px] font-bold text-cyan-400 group-hover:translate-x-0.5 transition">🏃 FitPulse</div>
-                <div class="text-[9px] text-slate-400 mt-0.5">Tracker</div>
               </button>
               <button onclick="loadDemoPreset('crypto')" class="p-2 rounded-xl bg-surface-800 hover:bg-surface-700/80 border border-white/5 hover:border-purple-500/30 text-left transition group">
                 <div class="text-[11px] font-bold text-purple-400 group-hover:translate-x-0.5 transition">💎 VaultPay</div>
@@ -599,6 +597,254 @@
 
     // PRESET BENCHMARK SKETCHES (Instant live demos)
     const PRESETS = {
+      cars: {
+        name: "ApexDrive Luxury Cars",
+        imageSrc: "car_sketch.jpg",
+        boxes: [
+          { top: '6%', left: '7%', width: '86%', height: '9%', label: 'DriveLuxuryHeader' },
+          { top: '18%', left: '7%', width: '86%', height: '17%', label: 'WeekendSpecialBanner' },
+          { top: '38%', left: '7%', width: '41%', height: '44%', label: 'Porsche911Card' },
+          { top: '38%', left: '52%', width: '41%', height: '44%', label: 'TeslaPlaidCard' },
+          { top: '86%', left: '7%', width: '86%', height: '10%', label: 'BottomGarageNav' }
+        ],
+        html: `
+          <div class="flex-1 flex flex-col justify-between h-full">
+            <!-- ================= 1. HOME SCREEN (CARS) ================= -->
+            <div id="phone-screen-home" class="flex-1 flex flex-col justify-between overflow-y-auto">
+              <div>
+                <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                  <div>
+                    <h4 class="text-xs font-bold text-white tracking-wide">ApexDrive Luxury</h4>
+                    <p class="text-[9px] text-cyan-400 font-semibold">● Supercar Fleet Live</p>
+                  </div>
+                  <div class="relative cursor-pointer" onclick="navigatePhoneScreen('cart')">
+                    <span class="p-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 block text-xs">🏎️</span>
+                    <span id="phoneCartBadge" class="cart-badge-count absolute -top-1 -right-1 bg-cyan-400 text-slate-950 font-black text-[9px] w-4 h-4 rounded-full flex items-center justify-center">1</span>
+                  </div>
+                </div>
+
+                <!-- Search -->
+                <div class="mt-3 cursor-pointer" onclick="navigatePhoneScreen('search')">
+                  <input type="text" readonly placeholder="Search Porsche, BMW, Tesla..." class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-1.5 text-xs text-white placeholder-slate-500 cursor-pointer" />
+                </div>
+
+                <!-- Promo Banner -->
+                <div class="mt-2.5 p-3 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-700 to-cyan-600 text-white shadow-md">
+                  <span class="text-[9px] uppercase font-bold tracking-widest bg-black/30 px-1.5 py-0.5 rounded">WEEKEND SPECIAL</span>
+                  <div class="text-xs font-black mt-1">25% OFF SUPERCAR RENTALS</div>
+                  <div class="text-[9px] opacity-80">Instant unlock with digital key</div>
+                </div>
+
+                <!-- Car Cards Grid -->
+                <div class="grid grid-cols-2 gap-2 mt-3">
+                  <div class="bg-slate-900 border border-slate-800/80 rounded-2xl p-2.5 flex flex-col justify-between">
+                    <div class="h-16 bg-slate-800/60 rounded-xl flex items-center justify-center text-3xl">🏎️</div>
+                    <div class="mt-1.5">
+                      <div class="text-[11px] font-bold text-white truncate">Porsche 911 GT3</div>
+                      <div class="text-xs font-bold text-cyan-400 mt-0.5">$350/day</div>
+                    </div>
+                    <button onclick="addItemToCart('Porsche 911 GT3', 350.00, '🏎️')" class="mt-2 w-full py-1.5 bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-bold text-[10px] rounded-lg transition active:scale-95 shadow-md shadow-cyan-500/10">
+                      + Book Now
+                    </button>
+                  </div>
+
+                  <div class="bg-slate-900 border border-slate-800/80 rounded-2xl p-2.5 flex flex-col justify-between">
+                    <div class="h-16 bg-slate-800/60 rounded-xl flex items-center justify-center text-3xl">⚡</div>
+                    <div class="mt-1.5">
+                      <div class="text-[11px] font-bold text-white truncate">Tesla Plaid</div>
+                      <div class="text-xs font-bold text-cyan-400 mt-0.5">$220/day</div>
+                    </div>
+                    <button onclick="addItemToCart('Tesla Model S Plaid', 220.00, '⚡')" class="mt-2 w-full py-1.5 bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-bold text-[10px] rounded-lg transition active:scale-95 shadow-md shadow-cyan-500/10">
+                      + Book Now
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ================= 2. BOOKINGS / CART SCREEN ================= -->
+            <div id="phone-screen-cart" class="hidden flex-1 flex flex-col justify-between overflow-y-auto">
+              <div>
+                <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                  <button onclick="navigatePhoneScreen('home')" class="text-xs text-slate-400 hover:text-white flex items-center gap-1">
+                    ← Back
+                  </button>
+                  <h4 class="text-xs font-bold text-white">Your Bookings (<span class="cart-badge-count">1</span>)</h4>
+                  <div class="w-5"></div>
+                </div>
+
+                <div id="cartItemsList" class="space-y-2 mt-3"></div>
+
+                <div class="mt-4 p-3 rounded-2xl bg-surface-900 border border-white/5 space-y-1.5 text-[11px]">
+                  <div class="flex items-center justify-between text-slate-400">
+                    <span>Daily Rate</span>
+                    <span id="cartSubtotal" class="font-bold text-white">$350.00</span>
+                  </div>
+                  <div class="flex items-center justify-between text-slate-400">
+                    <span>Insurance & Deposit</span>
+                    <span class="font-bold text-white">$50.00</span>
+                  </div>
+                  <div class="pt-2 border-t border-white/5 flex items-center justify-between font-bold text-xs text-white">
+                    <span>Total Due</span>
+                    <span id="cartTotal" class="text-cyan-400 font-black text-sm">$400.00</span>
+                  </div>
+                </div>
+              </div>
+
+              <button onclick="checkoutOrder()" class="mt-3 w-full py-3 bg-gradient-to-r from-cyan-400 to-blue-600 text-slate-950 font-black text-xs rounded-xl shadow-lg transition active:scale-95">
+                🚀 Confirm Reservation & Key Access
+              </button>
+            </div>
+
+            <!-- ================= 3. SEARCH SCREEN ================= -->
+            <div id="phone-screen-search" class="hidden flex-1 flex flex-col justify-between overflow-y-auto">
+              <div>
+                <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                  <h4 class="text-xs font-bold text-white">Search Garage</h4>
+                  <button onclick="navigatePhoneScreen('home')" class="text-xs text-slate-400 hover:text-white">Done</button>
+                </div>
+                <div class="mt-3">
+                  <input type="text" value="Supercars" placeholder="Search brands..." class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-1.5 text-xs text-white" />
+                </div>
+                <div class="space-y-2 mt-3">
+                  <div class="p-2.5 rounded-2xl bg-surface-900 border border-white/5 flex items-center justify-between text-xs">
+                    <div class="flex items-center gap-2">
+                      <span class="text-xl">🏎️</span>
+                      <div>
+                        <div class="font-bold text-white text-[11px]">Ferrari 296 GTB</div>
+                        <div class="text-[9px] text-cyan-400 font-bold">$490/day • 819 HP</div>
+                      </div>
+                    </div>
+                    <button onclick="addItemToCart('Ferrari 296 GTB', 490.00, '🏎️')" class="px-2 py-1 bg-cyan-400 text-slate-950 font-bold text-[10px] rounded-lg">
+                      + Book
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ================= 4. PROFILE SCREEN ================= -->
+            <div id="phone-screen-profile" class="hidden flex-1 flex flex-col justify-between overflow-y-auto">
+              <div>
+                <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                  <h4 class="text-xs font-bold text-white">Driver License</h4>
+                  <span class="text-[9px] px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-400 font-bold">VERIFIED DRIVER</span>
+                </div>
+                <div class="p-3 mt-3 rounded-2xl bg-surface-900 border border-white/5 flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-full bg-cyan-400 flex items-center justify-center font-bold text-sm text-slate-950">
+                    AD
+                  </div>
+                  <div>
+                    <div class="text-xs font-bold text-white">Apex VIP Member</div>
+                    <div class="text-[10px] text-slate-400">Security Deposit: Active</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ================= 5. SUCCESS SCREEN ================= -->
+            <div id="phone-screen-success" class="hidden flex-1 flex flex-col items-center justify-center text-center p-4 space-y-3">
+              <div class="w-14 h-14 rounded-full bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-2xl font-black border border-cyan-500/40 animate-bounce">
+                🔑
+              </div>
+              <div>
+                <h4 class="text-sm font-bold text-white">Supercar Reserved!</h4>
+                <p class="text-[10px] text-slate-400 mt-1">Digital key downloaded to phone wallet</p>
+              </div>
+              <button onclick="navigatePhoneScreen('home')" class="w-full py-2.5 bg-cyan-400 text-slate-950 font-bold text-xs rounded-xl shadow-md">
+                ← Back to Garage
+              </button>
+            </div>
+
+            <!-- ================= BOTTOM NAVIGATION BAR ================= -->
+            <div class="pt-2 border-t border-slate-800/80 flex items-center justify-around text-slate-400 text-[10px] mt-2">
+              <button data-tab="home" onclick="navigatePhoneScreen('home')" class="phone-nav-btn text-cyan-400 font-bold flex flex-col items-center transition">
+                <span>🏠</span>
+                <span class="text-[8px] mt-0.5">Home</span>
+              </button>
+              <button data-tab="search" onclick="navigatePhoneScreen('search')" class="phone-nav-btn hover:text-white flex flex-col items-center transition">
+                <span>🔍</span>
+                <span class="text-[8px] mt-0.5">Fleet</span>
+              </button>
+              <button data-tab="cart" onclick="navigatePhoneScreen('cart')" class="phone-nav-btn hover:text-white flex flex-col items-center transition relative">
+                <span>🏎️</span>
+                <span class="text-[8px] mt-0.5">Bookings</span>
+              </button>
+              <button data-tab="profile" onclick="navigatePhoneScreen('profile')" class="phone-nav-btn hover:text-white flex flex-col items-center transition">
+                <span>👤</span>
+                <span class="text-[8px] mt-0.5">License</span>
+              </button>
+            </div>
+          </div>
+        `,
+        code: `import React, { useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
+
+export default function ApexDriveApp() {
+  const [bookings, setBookings] = useState(0);
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.logo}>🏎️ ApexDrive</Text>
+        <TouchableOpacity style={styles.badge} onPress={() => alert('View reservations')}>
+          <Text style={styles.badgeText}>Keys: {bookings}</Text>
+        </TouchableOpacity>
+      </View>
+
+      <TextInput 
+        placeholder="Search Porsche, BMW, Tesla..." 
+        placeholderTextColor="#64748b" 
+        style={styles.search} 
+      />
+
+      <View style={styles.banner}>
+        <Text style={styles.bannerBadge}>WEEKEND SPECIAL</Text>
+        <Text style={styles.bannerTitle}>25% OFF SUPERCAR RENTALS</Text>
+      </View>
+
+      <ScrollView contentContainerStyle={styles.grid}>
+        <View style={styles.card}>
+          <Text style={styles.emoji}>🏎️</Text>
+          <Text style={styles.carName}>Porsche 911 GT3</Text>
+          <Text style={styles.price}>$350/day</Text>
+          <TouchableOpacity style={styles.btn} onPress={() => setBookings(b => b + 1)}>
+            <Text style={styles.btnText}>+ BOOK NOW</Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.card}>
+          <Text style={styles.emoji}>⚡</Text>
+          <Text style={styles.carName}>Tesla Model S Plaid</Text>
+          <Text style={styles.price}>$220/day</Text>
+          <TouchableOpacity style={styles.btn} onPress={() => setBookings(b => b + 1)}>
+            <Text style={styles.btnText}>+ BOOK NOW</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: '#06080d', padding: 16 },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  logo: { color: '#fff', fontSize: 18, fontWeight: 'bold' },
+  badge: { backgroundColor: '#111723', padding: 8, borderRadius: 8 },
+  badgeText: { color: '#22d3ee', fontWeight: 'bold' },
+  search: { backgroundColor: '#111723', borderRadius: 12, padding: 10, color: '#fff', marginVertical: 10 },
+  banner: { backgroundColor: '#1d4ed8', padding: 14, borderRadius: 14, marginBottom: 12 },
+  bannerBadge: { color: '#fff', fontSize: 10, fontWeight: 'bold' },
+  bannerTitle: { color: '#fff', fontSize: 15, fontWeight: '900', marginTop: 4 },
+  grid: { flexDirection: 'row', gap: 10 },
+  card: { flex: 1, backgroundColor: '#111723', padding: 12, borderRadius: 14 },
+  emoji: { fontSize: 34, textAlign: 'center' },
+  carName: { color: '#fff', fontWeight: 'bold', fontSize: 12, marginTop: 4 },
+  price: { color: '#22d3ee', fontWeight: 'bold', fontSize: 12, marginTop: 2 },
+  btn: { backgroundColor: '#22d3ee', padding: 8, borderRadius: 8, marginTop: 8, alignItems: 'center' },
+  btnText: { color: '#000', fontWeight: 'bold', fontSize: 10 }
+});`
+      },
       food: {
         name: "QuickBite Delivery",
         imageSrc: "sample_sketch.jpg",
@@ -1440,12 +1686,13 @@ const styles = StyleSheet.create({
       // Live Dynamic Computer Vision Compiler (Runs 100% locally with zero external API key)
       let generatedHtml = activePreset ? activePreset.html : '';
       let generatedCode = activePreset ? activePreset.code : '';
+      let visionResult = null;
 
       if (uploadedFile) {
         orchestrator.innerText = "SCANNING IMAGE PIXELS & CONTOURS...";
         
         // Run Autonomous In-Browser Computer Vision Heuristics
-        const visionResult = await analyzeSketchWithComputerVision(uploadedFile);
+        visionResult = await analyzeSketchWithComputerVision(uploadedFile);
         generatedHtml = visionResult.html;
         generatedCode = visionResult.code;
         renderBoundingBoxes(visionResult.boxes);
@@ -1461,17 +1708,24 @@ const styles = StyleSheet.create({
       // Update Code
       document.getElementById('codeView').innerText = generatedCode;
 
-      // Trigger Confetti
-      triggerConfetti();
+      // Validation feedback & Confetti
+      if (visionResult && visionResult.detectedCount === 0) {
+        orchestrator.className = "text-[10px] font-bold px-2 py-0.5 rounded bg-rose-500/20 text-rose-400";
+        orchestrator.innerText = "VALIDATION REJECTED";
+      } else {
+        triggerConfetti();
+        orchestrator.className = "text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400";
+        orchestrator.innerText = visionResult ? `SYNCED (${visionResult.detectedCount} Elements)` : "SYNCED (2.1s)";
+        updateCartBadgeCount();
+      }
 
       // Reset Button
       btn.disabled = false;
       btn.innerHTML = `<i data-lucide="play" class="w-4 h-4 fill-current"></i><span>Execute 4-Agent Pipeline</span>`;
-      orchestrator.innerText = "SYNCED (2.1s)";
       renderAllIcons();
     }
 
-    // AUTONOMOUS LOCAL COMPUTER VISION & LAYOUT HEURISTIC ENGINE (Zero API key needed)
+    // AUTONOMOUS LOCAL COMPUTER VISION & OCR VALIDATION AGENT (Zero API key needed)
     async function analyzeSketchWithComputerVision(file) {
       return new Promise((resolve) => {
         const img = new Image();
@@ -1479,16 +1733,17 @@ const styles = StyleSheet.create({
 
         reader.onload = (e) => {
           img.src = e.target.result;
-          img.onload = () => {
-            // Create hidden processing canvas
+          img.onload = async () => {
+            // Create processing canvas
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
             canvas.width = 400;
             canvas.height = 600;
             ctx.drawImage(img, 0, 0, 400, 600);
 
-            // Read image pixel luminance across 4 spatial regions
+            // Read image pixel luminance across spatial regions
             const imgData = ctx.getImageData(0, 0, 400, 600).data;
+            let darkPixelsTotal = 0;
             let darkPixelsTop = 0;
             let darkPixelsMidLeft = 0;
             let darkPixelsMidRight = 0;
@@ -1498,7 +1753,8 @@ const styles = StyleSheet.create({
               for (let x = 0; x < 400; x++) {
                 const idx = (y * 400 + x) * 4;
                 const brightness = (imgData[idx] + imgData[idx + 1] + imgData[idx + 2]) / 3;
-                if (brightness < 160) {
+                if (brightness < 165) {
+                  darkPixelsTotal++;
                   if (y < 120) darkPixelsTop++;
                   else if (y >= 120 && y < 480) {
                     if (x < 200) darkPixelsMidLeft++;
@@ -1508,14 +1764,85 @@ const styles = StyleSheet.create({
               }
             }
 
-            // Determine sketch layout geometry
-            const hasTwoColumns = Math.abs(darkPixelsMidLeft - darkPixelsMidRight) < (darkPixelsMidLeft * 0.7);
-            const hasHeroBanner = darkPixelsTop > 400;
-            const hasBottomNav = darkPixelsBottom > 250;
+            // ================= 1. REJECTION CRITERIA & VALIDATION =================
+            // If the photo is blank, solid black, or lacks wireframe strokes
+            if (darkPixelsTotal < 80) {
+              resolve({
+                detectedCount: 0,
+                boxes: [],
+                html: `
+                  <div class="m-auto text-center p-6 space-y-4">
+                    <div class="w-16 h-16 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-400 mx-auto flex items-center justify-center text-3xl">
+                      ✕
+                    </div>
+                    <div>
+                      <h4 class="text-sm font-bold text-rose-400">Invalid Wireframe Detected</h4>
+                      <p class="text-xs text-slate-400 mt-1.5 leading-relaxed">
+                        We could not detect any mobile UI shapes, buttons, or ink strokes. Please draw clear rectangular wireframes on plain paper.
+                      </p>
+                    </div>
+                    <button onclick="resetUpload(event)" class="px-4 py-2 bg-surface-800 hover:bg-surface-700 text-xs text-slate-300 font-bold rounded-xl border border-white/10">
+                      Try Another Photo
+                    </button>
+                  </div>
+                `,
+                code: `// Error: Invalid Wireframe\n// No rectangular components or ink strokes were detected in the uploaded image.\n// Please sketch clear wireframe boundaries and re-upload.`
+              });
+              return;
+            }
 
-            // Generate app title from file name or ink density
-            let rawName = (file.name || 'Mobile Proto').replace(/\.[^/.]+$/, "");
-            rawName = rawName.replace(/[_-]/g, " ").replace(/\b\w/g, l => l.toUpperCase());
+            // Run OCR text detection using Tesseract if available
+            let extractedText = "";
+            try {
+              if (window.Tesseract) {
+                const ocrResult = await Tesseract.recognize(canvas, 'eng');
+                extractedText = (ocrResult.data.text || '').toLowerCase();
+              }
+            } catch (err) {
+              console.warn("OCR recognition pass skipped:", err);
+            }
+
+            // Combine filename clues + OCR extracted words
+            const rawFileName = (file.name || '').toLowerCase();
+            const fullContext = (rawFileName + ' ' + extractedText).toLowerCase();
+
+            // Detect app domain from real handwriting / labels
+            const isCarApp = fullContext.includes('car') || fullContext.includes('drive') || fullContext.includes('porsche') || fullContext.includes('tesla') || fullContext.includes('rent') || fullContext.includes('auto');
+            const isFoodApp = fullContext.includes('food') || fullContext.includes('pizza') || fullContext.includes('burger') || fullContext.includes('quickbite') || fullContext.includes('eat') || fullContext.includes('order');
+            const isCryptoApp = fullContext.includes('crypto') || fullContext.includes('wallet') || fullContext.includes('btc') || fullContext.includes('eth') || fullContext.includes('coin') || fullContext.includes('pay');
+            const isTodoApp = fullContext.includes('todo') || fullContext.includes('task') || fullContext.includes('note') || fullContext.includes('list') || fullContext.includes('check');
+
+            let appTitle = "Custom Mobile Prototype";
+            let item1 = { name: "Featured Item 1", price: 19.99, icon: "⚡" };
+            let item2 = { name: "Featured Item 2", price: 14.50, icon: "📦" };
+
+            if (isCarApp) {
+              appTitle = "Drive Luxury Cars";
+              item1 = { name: "Porsche 911 GT3", price: 350.00, icon: "🏎️" };
+              item2 = { name: "Tesla Model S Plaid", price: 220.00, icon: "⚡" };
+            } else if (isFoodApp) {
+              appTitle = "QuickBite Food";
+              item1 = { name: "Margherita Pizza", price: 12.99, icon: "🍕" };
+              item2 = { name: "Cheeseburger Deluxe", price: 9.50, icon: "🍔" };
+            } else if (isCryptoApp) {
+              appTitle = "VaultPay Crypto";
+              item1 = { name: "Bitcoin (BTC)", price: 67400.00, icon: "₿" };
+              item2 = { name: "Ethereum (ETH)", price: 3520.00, icon: "Ξ" };
+            } else if (isTodoApp) {
+              appTitle = "TaskFlow Daily";
+              item1 = { name: "Review Hackathon Code", price: 0.00, icon: "✓" };
+              item2 = { name: "Submit Project to Devpost", price: 0.00, icon: "🚀" };
+            }
+
+            // Sync phone cart state with detected app items
+            MOBILE_STATE.cartItems = [
+              { id: 1, name: item1.name, price: item1.price, qty: 1, icon: item1.icon }
+            ];
+
+            // Determine geometry
+            const hasTwoColumns = Math.abs(darkPixelsMidLeft - darkPixelsMidRight) < (darkPixelsMidLeft * 0.7);
+            const hasHeroBanner = darkPixelsTop > 300;
+            const hasBottomNav = darkPixelsBottom > 200;
 
             // Build precise visual bounding boxes derived from the real image
             const boxes = [
@@ -1549,8 +1876,8 @@ const styles = StyleSheet.create({
                           ⚡
                         </div>
                         <div>
-                          <h4 class="text-xs font-bold text-white tracking-wide">${rawName}</h4>
-                          <p class="text-[9px] text-emerald-400 font-semibold">● Vision Compiled</p>
+                          <h4 class="text-xs font-bold text-white tracking-wide">${appTitle}</h4>
+                          <p class="text-[9px] text-emerald-400 font-semibold">● Vision Parsed</p>
                         </div>
                       </div>
                       <div class="relative cursor-pointer" onclick="navigatePhoneScreen('cart')">
@@ -1566,16 +1893,16 @@ const styles = StyleSheet.create({
                       <div class="absolute left-3 pointer-events-none">
                         <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                       </div>
-                      <input type="text" readonly placeholder="Tap to search ${rawName.toLowerCase()}..." class="w-full bg-slate-900 border border-slate-800 rounded-xl pl-8 pr-3 py-1.5 text-xs text-white placeholder-slate-500 cursor-pointer" />
+                      <input type="text" readonly placeholder="Search ${appTitle.toLowerCase()}..." class="w-full bg-slate-900 border border-slate-800 rounded-xl pl-8 pr-3 py-1.5 text-xs text-white placeholder-slate-500 cursor-pointer" />
                     </div>
 
                     <!-- Promo Banner -->
                     <div class="mt-2.5 p-3 rounded-2xl bg-gradient-to-r from-emerald-600 via-teal-700 to-cyan-800 text-white shadow-lg">
                       <div class="flex items-center justify-between">
-                        <span class="text-[9px] uppercase font-bold tracking-widest bg-black/30 px-1.5 py-0.5 rounded">FEATURED DROP</span>
-                        <span class="text-[9px] text-emerald-200 font-bold">New</span>
+                        <span class="text-[9px] uppercase font-bold tracking-widest bg-black/30 px-1.5 py-0.5 rounded">DETECTED UI REGION</span>
+                        <span class="text-[9px] text-emerald-200 font-bold">Matched</span>
                       </div>
-                      <div class="text-xs font-black mt-1">${rawName} Experience</div>
+                      <div class="text-xs font-black mt-1">${appTitle} Experience</div>
                       <div class="text-[9px] opacity-80 mt-0.5">Synthesized directly from your sketch drawing.</div>
                     </div>
 
@@ -1583,36 +1910,36 @@ const styles = StyleSheet.create({
                     <div class="grid grid-cols-2 gap-2 mt-3">
                       <div class="bg-slate-900 border border-slate-800/80 rounded-2xl p-2.5 flex flex-col justify-between">
                         <div class="h-16 bg-slate-800/60 rounded-xl flex items-center justify-center text-3xl">
-                          🍕
+                          ${item1.icon}
                         </div>
                         <div class="mt-2">
-                          <div class="text-[11px] font-bold text-white truncate">Special Pizza</div>
-                          <div class="text-xs font-bold text-emerald-400 mt-0.5">$14.99</div>
+                          <div class="text-[11px] font-bold text-white truncate">${item1.name}</div>
+                          <div class="text-xs font-bold text-emerald-400 mt-0.5">$${item1.price.toFixed(2)}</div>
                         </div>
-                        <button onclick="addItemToCart('Special Pizza', 14.99, '🍕')" class="mt-2 w-full py-1.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-[10px] rounded-lg transition active:scale-95 flex items-center justify-center gap-1 shadow-md shadow-emerald-500/10">
+                        <button onclick="addItemToCart('${item1.name}', ${item1.price}, '${item1.icon}')" class="mt-2 w-full py-1.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-[10px] rounded-lg transition active:scale-95 flex items-center justify-center gap-1 shadow-md shadow-emerald-500/10">
                           <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                          <span>+ Add to Cart</span>
+                          <span>+ Select Item</span>
                         </button>
                       </div>
 
                       <div class="bg-slate-900 border border-slate-800/80 rounded-2xl p-2.5 flex flex-col justify-between">
                         <div class="h-16 bg-slate-800/60 rounded-xl flex items-center justify-center text-3xl">
-                          🍔
+                          ${item2.icon}
                         </div>
                         <div class="mt-2">
-                          <div class="text-[11px] font-bold text-white truncate">Gourmet Burger</div>
-                          <div class="text-xs font-bold text-emerald-400 mt-0.5">$9.50</div>
+                          <div class="text-[11px] font-bold text-white truncate">${item2.name}</div>
+                          <div class="text-xs font-bold text-emerald-400 mt-0.5">$${item2.price.toFixed(2)}</div>
                         </div>
-                        <button onclick="addItemToCart('Gourmet Burger', 9.50, '🍔')" class="mt-2 w-full py-1.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-[10px] rounded-lg transition active:scale-95 flex items-center justify-center gap-1 shadow-md shadow-emerald-500/10">
+                        <button onclick="addItemToCart('${item2.name}', ${item2.price}, '${item2.icon}')" class="mt-2 w-full py-1.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-[10px] rounded-lg transition active:scale-95 flex items-center justify-center gap-1 shadow-md shadow-emerald-500/10">
                           <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                          <span>+ Add to Cart</span>
+                          <span>+ Select Item</span>
                         </button>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                <!-- ================= 2. SHOPPING CART SCREEN ================= -->
+                <!-- ================= 2. SHOPPING CART / DETAILS SCREEN ================= -->
                 <div id="phone-screen-cart" class="hidden flex-1 flex flex-col justify-between overflow-y-auto">
                   <div>
                     <div class="flex items-center justify-between pb-3 border-b border-slate-800">
@@ -1624,28 +1951,25 @@ const styles = StyleSheet.create({
                     </div>
 
                     <!-- Cart Item Rows -->
-                    <div id="cartItemsList" class="space-y-2 mt-3">
-                      <!-- Rendered dynamically -->
-                    </div>
+                    <div id="cartItemsList" class="space-y-2 mt-3"></div>
 
                     <!-- Price Summary Card -->
                     <div class="mt-4 p-3 rounded-2xl bg-surface-900 border border-white/5 space-y-1.5 text-[11px]">
                       <div class="flex items-center justify-between text-slate-400">
                         <span>Subtotal</span>
-                        <span id="cartSubtotal" class="font-bold text-white">$12.99</span>
+                        <span id="cartSubtotal" class="font-bold text-white">$19.99</span>
                       </div>
                       <div class="flex items-center justify-between text-slate-400">
-                        <span>Tax & Packaging</span>
+                        <span>Processing Fee</span>
                         <span class="font-bold text-white">$2.50</span>
                       </div>
                       <div class="pt-2 border-t border-white/5 flex items-center justify-between font-bold text-xs text-white">
                         <span>Total Due</span>
-                        <span id="cartTotal" class="text-emerald-400 font-black text-sm">$15.49</span>
+                        <span id="cartTotal" class="text-emerald-400 font-black text-sm">$22.49</span>
                       </div>
                     </div>
                   </div>
 
-                  <!-- Checkout Button -->
                   <button onclick="checkoutOrder()" class="mt-3 w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black text-xs rounded-xl shadow-lg transition active:scale-95 flex items-center justify-center gap-2">
                     <span>🚀 Confirm Order & Pay</span>
                   </button>
@@ -1663,42 +1987,28 @@ const styles = StyleSheet.create({
                       <div class="absolute left-3 pointer-events-none">
                         <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                       </div>
-                      <input type="text" value="Pizza" placeholder="Search menu..." class="w-full bg-slate-900 border border-slate-800 rounded-xl pl-8 pr-3 py-1.5 text-xs text-white" />
+                      <input type="text" value="Featured" placeholder="Search..." class="w-full bg-slate-900 border border-slate-800 rounded-xl pl-8 pr-3 py-1.5 text-xs text-white" />
                     </div>
 
                     <!-- Category Pills -->
                     <div class="flex items-center gap-1.5 mt-2.5 overflow-x-auto text-[10px]">
                       <span class="px-2.5 py-1 rounded-full bg-emerald-500 text-slate-950 font-bold">All</span>
                       <span class="px-2.5 py-1 rounded-full bg-surface-900 border border-white/5 text-slate-300">Trending</span>
-                      <span class="px-2.5 py-1 rounded-full bg-surface-900 border border-white/5 text-slate-300">Fast Food</span>
-                      <span class="px-2.5 py-1 rounded-full bg-surface-900 border border-white/5 text-slate-300">Drinks</span>
+                      <span class="px-2.5 py-1 rounded-full bg-surface-900 border border-white/5 text-slate-300">Popular</span>
                     </div>
 
                     <!-- Search Results -->
                     <div class="space-y-2 mt-3">
                       <div class="p-2.5 rounded-2xl bg-surface-900 border border-white/5 flex items-center justify-between text-xs">
                         <div class="flex items-center gap-2">
-                          <span class="text-xl">🍕</span>
+                          <span class="text-xl">${item1.icon}</span>
                           <div>
-                            <div class="font-bold text-white text-[11px]">Margherita Deluxe</div>
-                            <div class="text-[9px] text-emerald-400 font-bold">$12.99 • ★ 4.9</div>
+                            <div class="font-bold text-white text-[11px]">${item1.name} Premium</div>
+                            <div class="text-[9px] text-emerald-400 font-bold">$${item1.price.toFixed(2)} • ★ 4.9</div>
                           </div>
                         </div>
-                        <button onclick="addItemToCart('Margherita Deluxe', 12.99, '🍕')" class="px-2 py-1 bg-emerald-500 text-slate-950 font-bold text-[10px] rounded-lg">
-                          + Add
-                        </button>
-                      </div>
-
-                      <div class="p-2.5 rounded-2xl bg-surface-900 border border-white/5 flex items-center justify-between text-xs">
-                        <div class="flex items-center gap-2">
-                          <span class="text-xl">🌮</span>
-                          <div>
-                            <div class="font-bold text-white text-[11px]">Street Tacos</div>
-                            <div class="text-[9px] text-emerald-400 font-bold">$8.99 • ★ 4.8</div>
-                          </div>
-                        </div>
-                        <button onclick="addItemToCart('Street Tacos', 8.99, '🌮')" class="px-2 py-1 bg-emerald-500 text-slate-950 font-bold text-[10px] rounded-lg">
-                          + Add
+                        <button onclick="addItemToCart('${item1.name} Premium', ${item1.price}, '${item1.icon}')" class="px-2 py-1 bg-emerald-500 text-slate-950 font-bold text-[10px] rounded-lg">
+                          + Select
                         </button>
                       </div>
                     </div>
@@ -1709,8 +2019,8 @@ const styles = StyleSheet.create({
                 <div id="phone-screen-profile" class="hidden flex-1 flex flex-col justify-between overflow-y-auto">
                   <div>
                     <div class="flex items-center justify-between pb-3 border-b border-slate-800">
-                      <h4 class="text-xs font-bold text-white">User Profile</h4>
-                      <span class="text-[9px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold">VERIFIED</span>
+                      <h4 class="text-xs font-bold text-white">Account Details</h4>
+                      <span class="text-[9px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold">ACTIVE</span>
                     </div>
 
                     <div class="p-3 mt-3 rounded-2xl bg-surface-900 border border-white/5 flex items-center gap-3">
@@ -1718,30 +2028,11 @@ const styles = StyleSheet.create({
                         GW
                       </div>
                       <div>
-                        <div class="text-xs font-bold text-white">Hackathon Creator</div>
+                        <div class="text-xs font-bold text-white">Demo Creator</div>
                         <div class="text-[10px] text-slate-400">creator@ghostwriter.app</div>
                       </div>
                     </div>
-
-                    <div class="mt-3 space-y-1.5 text-xs">
-                      <div class="p-2.5 rounded-xl bg-surface-900 border border-white/5 flex items-center justify-between text-slate-300">
-                        <span>📦 Past Orders (3)</span>
-                        <span class="text-slate-500">›</span>
-                      </div>
-                      <div class="p-2.5 rounded-xl bg-surface-900 border border-white/5 flex items-center justify-between text-slate-300">
-                        <span>💳 Saved Cards (2)</span>
-                        <span class="text-slate-500">›</span>
-                      </div>
-                      <div class="p-2.5 rounded-xl bg-surface-900 border border-white/5 flex items-center justify-between text-slate-300">
-                        <span>🔔 Notifications</span>
-                        <span class="text-emerald-400 font-bold text-[10px]">ON</span>
-                      </div>
-                    </div>
                   </div>
-
-                  <button onclick="alert('Logged out safely.')" class="w-full py-2.5 rounded-xl bg-surface-900 border border-rose-500/30 text-rose-400 font-bold text-xs mt-3">
-                    Sign Out
-                  </button>
                 </div>
 
                 <!-- ================= 5. SUCCESS CONFIRMATION SCREEN ================= -->
@@ -1750,15 +2041,11 @@ const styles = StyleSheet.create({
                     ✓
                   </div>
                   <div>
-                    <h4 class="text-sm font-bold text-white">Order Confirmed!</h4>
-                    <p class="text-[10px] text-slate-400 mt-1">Estimated delivery: 25 minutes</p>
-                  </div>
-                  <div class="p-3 rounded-2xl bg-surface-900 border border-white/5 text-[10px] text-slate-300 w-full">
-                    <div>Order Ref: #GW-9824</div>
-                    <div class="text-emerald-400 font-bold mt-0.5">Paid via GhostWriter Sandbox</div>
+                    <h4 class="text-sm font-bold text-white">Action Completed!</h4>
+                    <p class="text-[10px] text-slate-400 mt-1">Processed successfully</p>
                   </div>
                   <button onclick="navigatePhoneScreen('home')" class="w-full py-2.5 bg-emerald-500 text-slate-950 font-bold text-xs rounded-xl shadow-md">
-                    ← Back to Store
+                    ← Back to App
                   </button>
                 </div>
 
@@ -1789,14 +2076,14 @@ const styles = StyleSheet.create({
             const code = `import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 
-export default function ${rawName.replace(/\s+/g, '')}App() {
+export default function ${appTitle.replace(/\s+/g, '')}App() {
   const [cartCount, setCartCount] = useState(0);
 
   return (
     <View style={styles.container}>
-      {/* Header parsed from top wireframe band */}
+      {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.title}>${rawName}</Text>
+        <Text style={styles.title}>${appTitle}</Text>
         <TouchableOpacity style={styles.cart} onPress={() => alert('Cart opened')}>
           <Text style={styles.cartText}>🛒 {cartCount}</Text>
         </TouchableOpacity>
@@ -1804,32 +2091,32 @@ export default function ${rawName.replace(/\s+/g, '')}App() {
 
       {/* Search Input */}
       <TextInput 
-        placeholder="Search ${rawName.toLowerCase()}..." 
+        placeholder="Search ${appTitle.toLowerCase()}..." 
         placeholderTextColor="#64748b" 
         style={styles.search}
       />
 
       {/* Feature Banner */}
       <View style={styles.banner}>
-        <Text style={styles.bannerBadge}>VISION DETECTED</Text>
-        <Text style={styles.bannerTitle}>${rawName} Discovery</Text>
+        <Text style={styles.bannerBadge}>DETECTED SECTION</Text>
+        <Text style={styles.bannerTitle}>${appTitle} Experience</Text>
       </View>
 
       {/* Content Grid */}
       <ScrollView contentContainerStyle={styles.grid}>
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Sketched Item 1</Text>
-          <Text style={styles.price}>$29.99</Text>
+          <Text style={styles.cardTitle}>${item1.name}</Text>
+          <Text style={styles.price}>$${item1.price.toFixed(2)}</Text>
           <TouchableOpacity style={styles.btn} onPress={() => setCartCount(c => c + 1)}>
-            <Text style={styles.btnText}>+ Add Item</Text>
+            <Text style={styles.btnText}>+ Select Item</Text>
           </TouchableOpacity>
         </View>
 
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Sketched Item 2</Text>
-          <Text style={styles.price}>$14.50</Text>
+          <Text style={styles.cardTitle}>${item2.name}</Text>
+          <Text style={styles.price}>$${item2.price.toFixed(2)}</Text>
           <TouchableOpacity style={styles.btn} onPress={() => setCartCount(c => c + 1)}>
-            <Text style={styles.btnText}>+ Add Item</Text>
+            <Text style={styles.btnText}>+ Select Item</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>

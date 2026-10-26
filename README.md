@@ -45,9 +45,10 @@ Every visionary product starts as a messy wireframe scribbled on a cocktail napk
 
 ## 🚀 Quick Start (Running Locally)
 
-### 1. Run the Backend
+### 1. Clone & Run Backend
 ```bash
-cd backend
+git clone https://github.com/Ganesh2256B/GhostWriter.git
+cd GhostWriter/backend
 pip install -r requirements.txt
 python -m uvicorn main:app --reload --port 8000
 ```

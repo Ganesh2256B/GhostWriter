@@ -1,0 +1,66 @@
+<svg viewBox="0 0 400 520" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" style="background:#faf8f5; border: 2px solid #e2d9cc; border-radius: 16px; font-family: 'Comic Sans MS', 'Chalkboard SE', 'Caveat', cursive, sans-serif;">
+  <!-- Grid paper effect -->
+  <defs>
+    <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+      <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#e8e1d5" stroke-width="0.8"/>
+    </pattern>
+  </defs>
+  <rect width="100%" height="100%" fill="url(#grid)" />
+  
+  <!-- Sketch Header -->
+  <text x="35" y="42" font-size="20" font-weight="bold" fill="#1e293b" letter-spacing="1">🍔 QUICKBITE APP</text>
+  <text x="300" y="40" font-size="12" fill="#64748b">SCREEN 01</text>
+  <line x1="30" y1="52" x2="370" y2="52" stroke="#334155" stroke-width="2.5" stroke-linecap="round"/>
+
+  <!-- Search Bar Sketch -->
+  <rect x="30" y="68" width="340" height="42" rx="10" fill="#fff" stroke="#1e293b" stroke-width="2.5" stroke-dasharray="1,1"/>
+  <text x="48" y="94" font-size="14" fill="#64748b">🔍 Search pizza, burgers, sushi...</text>
+
+  <!-- Promo Banner Sketch -->
+  <rect x="30" y="125" width="340" height="85" rx="14" fill="#fff9eb" stroke="#d97706" stroke-width="2.5"/>
+  <text x="50" y="155" font-size="16" font-weight="bold" fill="#b45309">🎉 30% OFF FIRST ORDER</text>
+  <text x="50" y="178" font-size="12" fill="#78350f">Use Code: HACKATHON2026</text>
+  <rect x="250" y="145" width="100" height="32" rx="8" fill="#d97706"/>
+  <text x="268" y="166" font-size="11" font-weight="bold" fill="#fff">CLAIM NOW</text>
+
+  <!-- Categories Row -->
+  <text x="32" y="235" font-size="14" font-weight="bold" fill="#1e293b">Categories</text>
+  <rect x="30" y="248" width="75" height="28" rx="14" fill="#1e293b"/>
+  <text x="44" y="267" font-size="11" font-weight="bold" fill="#fff">🍕 Pizza</text>
+  <rect x="115" y="248" width="80" height="28" rx="14" fill="#fff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="127" y="267" font-size="11" fill="#475569">🍔 Burger</text>
+  <rect x="205" y="248" width="75" height="28" rx="14" fill="#fff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="220" y="267" font-size="11" fill="#475569">🥗 Salad</text>
+
+  <!-- Food Item 1 -->
+  <rect x="30" y="295" width="160" height="155" rx="12" fill="#fff" stroke="#1e293b" stroke-width="2.5"/>
+  <circle cx="110" cy="340" r="30" fill="#fef3c7" stroke="#f59e0b" stroke-width="2"/>
+  <text x="96" y="348" font-size="28">🍕</text>
+  <text x="42" y="390" font-size="13" font-weight="bold" fill="#1e293b">Classic Pizza</text>
+  <text x="42" y="408" font-size="12" font-weight="bold" fill="#16a34a">$12.99</text>
+  <rect x="42" y="418" width="136" height="24" rx="6" fill="#16a34a"/>
+  <text x="75" y="434" font-size="10" font-weight="bold" fill="#fff">+ ADD TO CART</text>
+
+  <!-- Food Item 2 -->
+  <rect x="210" y="295" width="160" height="155" rx="12" fill="#fff" stroke="#1e293b" stroke-width="2.5"/>
+  <circle cx="290" cy="340" r="30" fill="#fee2e2" stroke="#ef4444" stroke-width="2"/>
+  <text x="276" y="348" font-size="28">🍔</text>
+  <text x="222" y="390" font-size="13" font-weight="bold" fill="#1e293b">Smash Burger</text>
+  <text x="222" y="408" font-size="12" font-weight="bold" fill="#16a34a">$8.50</text>
+  <rect x="222" y="418" width="136" height="24" rx="6" fill="#16a34a"/>
+  <text x="255" y="434" font-size="10" font-weight="bold" fill="#fff">+ ADD TO CART</text>
+
+  <!-- Bottom Navigation Bar Sketch -->
+  <line x1="30" y1="470" x2="370" y2="470" stroke="#cbd5e1" stroke-width="1.5"/>
+  <text x="50" y="500" font-size="20">🏠</text>
+  <text x="48" y="512" font-size="8" fill="#1e293b" font-weight="bold">Home</text>
+  
+  <text x="140" y="500" font-size="20">🔍</text>
+  <text x="135" y="512" font-size="8" fill="#64748b">Search</text>
+  
+  <text x="230" y="500" font-size="20">🛒</text>
+  <text x="228" y="512" font-size="8" fill="#64748b">Cart</text>
+
+  <text x="320" y="500" font-size="20">👤</text>
+  <text x="316" y="512" font-size="8" fill="#64748b">User</text>
+</svg>

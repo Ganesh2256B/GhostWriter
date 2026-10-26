@@ -220,7 +220,6 @@ async def run_ai_pipeline(image_bytes: bytes):
     }
     """
 
-    # 1. Gemini
     if gemini_model:
         try:
             response = gemini_model.generate_content([
@@ -229,7 +228,10 @@ async def run_ai_pipeline(image_bytes: bytes):
             ])
             return clean_json_string(response.text)
         except Exception as e:
-            print(f"Gemini generation error: {e}")
+            print(f"CRITICAL GEMINI ERROR: {str(e)}")
+            # We don't return mock here to let the outer loop handle fallback or report error
+            raise e
+
 
     # 2. OpenAI GPT-4o Fallback
     if openai_client:

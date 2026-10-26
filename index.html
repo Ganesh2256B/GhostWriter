@@ -250,12 +250,37 @@
         <!-- Input Wireframe Card -->
         <div class="p-5 rounded-3xl bg-surface-900 border border-white/5 flex flex-col flex-1 shadow-2xl relative">
           
-          <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center justify-between mb-2">
             <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
               <svg class="w-4 h-4 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
               1. Input Napkin Sketch
             </h3>
             <span class="text-[11px] text-slate-500">Paper or Canvas</span>
+          </div>
+
+          <!-- DUAL ENGINE SELECTOR: Local Vision (Free) vs Cloud Vision AI (API Key) -->
+          <div class="mb-3 p-1 rounded-xl bg-surface-950 border border-white/5 flex items-center gap-1 text-[10px] font-bold">
+            <button type="button" id="modeLocalBtn" onclick="setPipelineMode('local')" class="flex-1 py-1.5 px-2 rounded-lg bg-emerald-500 text-slate-950 flex items-center justify-center gap-1 transition shadow-sm">
+              <span>⚡ Local Vision (No Key)</span>
+            </button>
+            <button type="button" id="modeAiBtn" onclick="setPipelineMode('ai')" class="flex-1 py-1.5 px-2 rounded-lg text-slate-400 hover:text-white flex items-center justify-center gap-1 transition">
+              <span>🤖 Cloud Vision AI (API Key)</span>
+            </button>
+          </div>
+
+          <!-- API Key Input Drawer -->
+          <div id="aiKeyDrawer" class="hidden mb-3 p-3 rounded-2xl bg-surface-950 border border-cyan-500/30 space-y-2">
+            <div class="flex items-center justify-between text-[10px]">
+              <span class="text-cyan-400 font-bold flex items-center gap-1">
+                <span>🔑</span> Gemini Vision API Key:
+              </span>
+              <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-emerald-400 hover:underline text-[10px]">Get Free Key ↗</a>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <input type="password" id="geminiApiKeyInput" placeholder="Paste Google AI Studio Key (AIza...)" class="flex-1 bg-surface-900 border border-white/10 rounded-xl px-2.5 py-1.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-cyan-500" />
+              <button type="button" onclick="saveApiKey()" class="px-3 py-1.5 rounded-xl bg-cyan-500 text-slate-950 font-bold text-xs hover:bg-cyan-400 transition">Save</button>
+            </div>
+            <div id="keyStatusMsg" class="text-[9px] text-slate-500">Stored safely in browser localStorage only. Never pushed to GitHub.</div>
           </div>
 
           <!-- Upload / Sketch Viewer with Bounding Box Overlay -->
@@ -1649,7 +1674,50 @@ const styles = StyleSheet.create({
       document.getElementById('imageInput').value = '';
     }
 
-    // Pipeline Execution
+    // DUAL-ENGINE PIPELINE STATE (Local Vision vs Cloud Vision AI)
+    let currentPipelineMode = 'local'; // 'local' or 'ai'
+
+    function setPipelineMode(mode) {
+      currentPipelineMode = mode;
+      const localBtn = document.getElementById('modeLocalBtn');
+      const aiBtn = document.getElementById('modeAiBtn');
+      const keyDrawer = document.getElementById('aiKeyDrawer');
+
+      if (mode === 'local') {
+        localBtn.className = "flex-1 py-1.5 px-2 rounded-lg bg-emerald-500 text-slate-950 flex items-center justify-center gap-1 transition shadow-sm font-bold";
+        aiBtn.className = "flex-1 py-1.5 px-2 rounded-lg text-slate-400 hover:text-white flex items-center justify-center gap-1 transition font-bold";
+        if (keyDrawer) keyDrawer.classList.add('hidden');
+      } else {
+        localBtn.className = "flex-1 py-1.5 px-2 rounded-lg text-slate-400 hover:text-white flex items-center justify-center gap-1 transition font-bold";
+        aiBtn.className = "flex-1 py-1.5 px-2 rounded-lg bg-cyan-500 text-slate-950 flex items-center justify-center gap-1 transition shadow-sm font-bold";
+        if (keyDrawer) {
+          keyDrawer.classList.remove('hidden');
+          const saved = getSavedApiKey();
+          if (saved) document.getElementById('geminiApiKeyInput').value = saved;
+        }
+      }
+    }
+
+    function saveApiKey() {
+      const input = document.getElementById('geminiApiKeyInput');
+      const val = (input ? input.value : '').trim();
+      if (!val) {
+        alert("Please paste a valid Gemini API key.");
+        return;
+      }
+      localStorage.setItem('ghostwriter_gemini_key', val);
+      const msg = document.getElementById('keyStatusMsg');
+      if (msg) {
+        msg.innerText = "✓ Key saved safely in your browser! Ready for Deep AI Vision.";
+        msg.className = "text-[9px] text-emerald-400 font-bold";
+      }
+    }
+
+    function getSavedApiKey() {
+      return localStorage.getItem('ghostwriter_gemini_key') || '';
+    }
+
+    // Pipeline Execution Orchestrator
     async function executeAgentPipeline() {
       const btn = document.getElementById('compileBtn');
       const orchestrator = document.getElementById('orchestratorStatus');
@@ -1683,20 +1751,35 @@ const styles = StyleSheet.create({
         status.innerText = "READY";
       }
 
-      // Live Dynamic Computer Vision Compiler (Runs 100% locally with zero external API key)
       let generatedHtml = activePreset ? activePreset.html : '';
       let generatedCode = activePreset ? activePreset.code : '';
       let visionResult = null;
 
       if (uploadedFile) {
-        orchestrator.innerText = "SCANNING IMAGE PIXELS & CONTOURS...";
-        
-        // Run Autonomous In-Browser Computer Vision Heuristics
-        visionResult = await analyzeSketchWithComputerVision(uploadedFile);
+        if (currentPipelineMode === 'ai') {
+          // Cloud Vision AI Mode (Gemini API)
+          const apiKey = getSavedApiKey() || (document.getElementById('geminiApiKeyInput') ? document.getElementById('geminiApiKeyInput').value : '').trim();
+          if (!apiKey) {
+            alert("Please enter a Gemini API Key to use Cloud Vision AI mode, or click 'Local Vision' to run 100% free!");
+            setPipelineMode('ai');
+            btn.disabled = false;
+            btn.innerHTML = `<i data-lucide="play" class="w-4 h-4 fill-current"></i><span>Execute 4-Agent Pipeline</span>`;
+            orchestrator.className = "text-[10px] font-bold px-2 py-0.5 rounded bg-amber-500/20 text-amber-400";
+            orchestrator.innerText = "API KEY REQUIRED";
+            return;
+          }
+          orchestrator.innerText = "RUNNING GEMINI 1.5 FLASH MULTI-MODAL REASONING...";
+          visionResult = await analyzeSketchWithGeminiVision(uploadedFile, apiKey);
+        } else {
+          // Local Vision Mode (Strict Geometric Edge & Contrast Filter)
+          orchestrator.innerText = "RUNNING LOCAL COMPUTER VISION & EDGE FILTERS...";
+          visionResult = await analyzeSketchWithComputerVision(uploadedFile);
+        }
+
         generatedHtml = visionResult.html;
         generatedCode = visionResult.code;
         renderBoundingBoxes(visionResult.boxes);
-        orchestrator.innerText = `VISION COMPILED: ${visionResult.detectedCount} COMPONENTS`;
+        orchestrator.innerText = visionResult.detectedCount > 0 ? `COMPILED: ${visionResult.detectedCount} COMPONENTS` : "VALIDATION FAILED";
       }
 
       // Mount to Phone
@@ -1705,7 +1788,7 @@ const styles = StyleSheet.create({
       mount.classList.remove('hidden');
       mount.innerHTML = generatedHtml;
 
-      // Update Code
+      // Update Code View
       document.getElementById('codeView').innerText = generatedCode;
 
       // Validation feedback & Confetti
@@ -1725,7 +1808,157 @@ const styles = StyleSheet.create({
       renderAllIcons();
     }
 
-    // AUTONOMOUS LOCAL COMPUTER VISION & OCR VALIDATION AGENT (Zero API key needed)
+    // =========================================================================
+    // 1. CLOUD VISION AI AGENT (Gemini 1.5 Flash Multi-Modal Vision)
+    // =========================================================================
+    async function analyzeSketchWithGeminiVision(file, apiKey) {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+          const base64Data = e.target.result.split(',')[1];
+          const mimeType = file.type || 'image/jpeg';
+
+          const prompt = `You are GhostWriter — an autonomous computer vision and UI compiler agent.
+Examine this image with extreme precision.
+
+STEP 1: STRICT WIREFRAME VALIDATION
+Is this image an actual hand-drawn mobile app wireframe sketch or UI drawing?
+If this is a photograph of a person, animal, car, nature, landscape, room, furniture, food photo, screenshot of a text document, or any random non-wireframe image, you MUST reject it by returning JSON:
+{
+  "is_valid_wireframe": false,
+  "rejection_reason": "Identified as a photograph of [describe what it actually is in 5-10 words], not a mobile wireframe sketch. GhostWriter only compiles hand-drawn UI wireframes into mobile apps."
+}
+
+STEP 2: IF AND ONLY IF THIS IS A VALID WIREFRAME:
+1. Extract the EXACT app title written in the sketch.
+2. Count the EXACT number of items/cards drawn and extract their exact handwritten names and prices (if written).
+3. Provide bounding boxes for detected UI regions as percentage strings:
+   [{"top": "6%", "left": "7%", "width": "86%", "height": "9%", "label": "HeaderBand"}, ...]
+4. Return a structured JSON matching this schema:
+{
+  "is_valid_wireframe": true,
+  "app_title": "App Name",
+  "item_count": 4,
+  "detected_items": [
+    {"name": "Item Name", "price": 19.99, "icon": "⚡"}
+  ],
+  "bounding_boxes": [
+    {"top": "6%", "left": "7%", "width": "86%", "height": "9%", "label": "HeaderBand"}
+  ]
+}
+Return ONLY valid JSON.`;
+
+          try {
+            const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                contents: [{
+                  parts: [
+                    { text: prompt },
+                    { inline_data: { mime_type: mimeType, data: base64Data } }
+                  ]
+                }],
+                generationConfig: {
+                  response_mime_type: "application/json"
+                }
+              })
+            });
+
+            if (!resp.ok) {
+              const errData = await resp.json();
+              throw new Error(errData.error?.message || 'Gemini API call failed');
+            }
+
+            const data = await resp.json();
+            const textResult = data.candidates?.[0]?.content?.parts?.[0]?.text;
+            const parsed = JSON.parse(textResult);
+
+            if (!parsed.is_valid_wireframe) {
+              resolve({
+                detectedCount: 0,
+                boxes: [],
+                html: `
+                  <div class="m-auto text-center p-6 space-y-4">
+                    <div class="w-16 h-16 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-400 mx-auto flex items-center justify-center text-3xl">
+                      ✕
+                    </div>
+                    <div>
+                      <h4 class="text-sm font-bold text-rose-400">Invalid Wireframe Detected</h4>
+                      <p class="text-xs text-slate-300 mt-2 leading-relaxed">
+                        ${parsed.rejection_reason || 'The AI model determined this photo is not a hand-drawn mobile wireframe.'}
+                      </p>
+                    </div>
+                    <button onclick="resetUpload(event)" class="px-4 py-2 bg-surface-800 hover:bg-surface-700 text-xs text-slate-300 font-bold rounded-xl border border-white/10">
+                      Try Another Photo
+                    </button>
+                  </div>
+                `,
+                code: `// Validation Error: Non-Wireframe Image\n// AI Reason: ${parsed.rejection_reason || 'Image is not a hand-drawn mobile wireframe.'}\n// GhostWriter requires a hand-drawn wireframe sketch.`
+              });
+              return;
+            }
+
+            // Valid sketch: build UI from the AI's exact extracted items
+            const activeItems = parsed.detected_items && parsed.detected_items.length > 0 ? parsed.detected_items : [
+              { name: "Sketched Card", price: 19.99, icon: "⚡" }
+            ];
+            const appTitle = parsed.app_title || "Synthesized Mobile App";
+            const boxes = parsed.bounding_boxes && parsed.bounding_boxes.length > 0 ? parsed.bounding_boxes : [
+              { top: '6%', left: '7%', width: '86%', height: '9%', label: 'AI:Header' },
+              { top: '18%', left: '7%', width: '86%', height: '14%', label: 'AI:Banner' },
+              { top: '36%', left: '7%', width: '41%', height: '24%', label: 'AI:Card1' },
+              { top: '36%', left: '52%', width: '41%', height: '24%', label: 'AI:Card2' },
+              { top: '86%', left: '7%', width: '86%', height: '10%', label: 'AI:TabBar' }
+            ];
+
+            // Sync phone cart
+            MOBILE_STATE.cartItems = [
+              { id: 1, name: activeItems[0].name, price: activeItems[0].price, qty: 1, icon: activeItems[0].icon }
+            ];
+
+            const html = buildDynamicAppHtml(appTitle, "Gemini Vision Extracted", "AI Synthesized Experience", "Derived directly from your handwritten drawing.", "Search...", activeItems);
+            const code = buildDynamicReactNativeCode(appTitle, "AI Synthesized Experience", "Search...", activeItems);
+
+            resolve({
+              detectedCount: boxes.length,
+              boxes: boxes,
+              html: html,
+              code: code
+            });
+
+          } catch (err) {
+            console.error("Gemini Vision Error:", err);
+            resolve({
+              detectedCount: 0,
+              boxes: [],
+              html: `
+                <div class="m-auto text-center p-6 space-y-4">
+                  <div class="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-400 mx-auto flex items-center justify-center text-3xl">
+                    ⚠️
+                  </div>
+                  <div>
+                    <h4 class="text-sm font-bold text-amber-400">Gemini API Error</h4>
+                    <p class="text-xs text-slate-400 mt-1.5 leading-relaxed">
+                      ${err.message || 'Could not connect to Gemini API. Please check your API key.'}
+                    </p>
+                  </div>
+                  <button onclick="setPipelineMode('local')" class="px-4 py-2 bg-emerald-500 text-slate-950 text-xs font-bold rounded-xl shadow-md">
+                    Switch to Local Vision (Free)
+                  </button>
+                </div>
+              `,
+              code: `// Gemini API Error: ${err.message}\n// Switch to Local Vision mode to run free without an API key.`
+            });
+          }
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // =========================================================================
+    // 2. LOCAL COMPUTER VISION AGENT (Strict Contrast & Edge Verification)
+    // =========================================================================
     async function analyzeSketchWithComputerVision(file) {
       return new Promise((resolve) => {
         const img = new Image();
@@ -1743,9 +1976,11 @@ const styles = StyleSheet.create({
 
             // Read image pixel luminance across spatial regions
             const imgData = ctx.getImageData(0, 0, 400, 600).data;
-            let darkPixelsTotal = 0;
-            let darkPixelsTop = 0;
-            let darkPixelsBottom = 0;
+            const totalPixels = 400 * 600; // 240,000
+
+            let whitePaperPixels = 0; // Luminance > 155 (light paper/napkin)
+            let darkInkPixels = 0;    // Luminance < 125 (pen ink strokes)
+            let edgeTransitions = 0;  // Sharp contrast jumps between adjacent pixels
 
             // Spatial quadrant analysis for multi-item layout detection
             let q1Dark = 0; // Top-Left  (x: 40..190, y: 220..360)
@@ -1756,13 +1991,13 @@ const styles = StyleSheet.create({
             for (let y = 0; y < 600; y++) {
               for (let x = 0; x < 400; x++) {
                 const idx = (y * 400 + x) * 4;
-                const brightness = (imgData[idx] + imgData[idx + 1] + imgData[idx + 2]) / 3;
-                if (brightness < 165) {
-                  darkPixelsTotal++;
-                  if (y < 130) darkPixelsTop++;
-                  else if (y >= 490) darkPixelsBottom++;
+                const b = (imgData[idx] + imgData[idx + 1] + imgData[idx + 2]) / 3;
 
-                  // Quadrant ink tracking
+                if (b > 155) whitePaperPixels++;
+                else if (b < 125) {
+                  darkInkPixels++;
+
+                  // Track quadrant strokes
                   if (y >= 220 && y < 360) {
                     if (x >= 40 && x < 190) q1Dark++;
                     else if (x >= 210 && x < 360) q2Dark++;
@@ -1771,13 +2006,41 @@ const styles = StyleSheet.create({
                     else if (x >= 210 && x < 360) q4Dark++;
                   }
                 }
+
+                // Check horizontal edge gradient transition
+                if (x < 399) {
+                  const nextIdx = (y * 400 + (x + 1)) * 4;
+                  const nextB = (imgData[nextIdx] + imgData[nextIdx + 1] + imgData[nextIdx + 2]) / 3;
+                  if (Math.abs(b - nextB) > 55) {
+                    edgeTransitions++;
+                  }
+                }
               }
             }
 
-            // ================= 1. REJECTION CRITERIA & VALIDATION =================
-            // Valid mobile wireframe has clear ink strokes on paper.
-            // Reject if image is blank (< 200 dark pixels) or solid dark/non-wireframe (> 150,000 dark pixels)
-            if (darkPixelsTotal < 200 || darkPixelsTotal > 150000) {
+            const paperRatio = whitePaperPixels / totalPixels;
+            const inkRatio = darkInkPixels / totalPixels;
+
+            // ================= STRICT REJECTION CRITERIA =================
+            // 1. A wireframe on paper MUST have at least 48% light paper background (random photos fail this)
+            // 2. Ink strokes must be between 0.6% and 28% (blank sheets fail < 0.6%, dark photos fail > 28%)
+            // 3. Must have sharp pen-stroke edge transitions (> 1,000 edge transitions)
+            const isPaperBackground = paperRatio >= 0.48;
+            const hasSufficientInk = inkRatio >= 0.006 && inkRatio <= 0.28;
+            const hasSharpEdges = edgeTransitions >= 1000;
+
+            if (!isPaperBackground || !hasSufficientInk || !hasSharpEdges) {
+              let reason = "The image does not appear to be a hand-drawn wireframe sketch on paper.";
+              if (!isPaperBackground) {
+                reason = "Detected a photographic or dark scene (insufficient paper background). Please upload a sketch drawn with pen on white paper or a napkin.";
+              } else if (inkRatio < 0.006) {
+                reason = "The image is blank or faint (insufficient ink strokes detected). Please sketch clear wireframes with a pen.";
+              } else if (inkRatio > 0.28) {
+                reason = "Detected too much dark shading (typical of real-world photos). Please use clean line drawings.";
+              } else if (!hasSharpEdges) {
+                reason = "No sharp rectangular UI lines detected. Please sketch UI cards and buttons.";
+              }
+
               resolve({
                 detectedCount: 0,
                 boxes: [],
@@ -1788,16 +2051,18 @@ const styles = StyleSheet.create({
                     </div>
                     <div>
                       <h4 class="text-sm font-bold text-rose-400">Invalid Wireframe Detected</h4>
-                      <p class="text-xs text-slate-400 mt-1.5 leading-relaxed">
-                        We could not detect clear mobile UI shapes, component boundaries, or ink strokes in this photo. Please upload a clear sketch drawn with pen on paper.
+                      <p class="text-xs text-slate-300 mt-2 leading-relaxed">
+                        ${reason}
                       </p>
                     </div>
-                    <button onclick="resetUpload(event)" class="px-4 py-2 bg-surface-800 hover:bg-surface-700 text-xs text-slate-300 font-bold rounded-xl border border-white/10">
-                      Try Another Photo
-                    </button>
+                    <div class="pt-2">
+                      <button onclick="resetUpload(event)" class="px-4 py-2 bg-surface-800 hover:bg-surface-700 text-xs text-slate-300 font-bold rounded-xl border border-white/10">
+                        Try Another Photo
+                      </button>
+                    </div>
                   </div>
                 `,
-                code: `// Validation Error: Invalid Wireframe\n// Image does not have identifiable mobile wireframe strokes or rectangular UI bounds.\n// Please sketch clear wireframe boundaries and re-upload.`
+                code: `// Validation Error: Invalid Wireframe\n// Reason: ${reason}\n// GhostWriter requires a hand-drawn mobile wireframe on paper.`
               });
               return;
             }
@@ -1826,7 +2091,7 @@ const styles = StyleSheet.create({
             const isTodoApp = fullContext.includes('todo') || fullContext.includes('task') || fullContext.includes('note') || fullContext.includes('list') || fullContext.includes('check');
 
             // Detect layout item count: 4 items if 4-item sketch or all 4 quadrants have ink
-            const hasFourGridCards = isKicksApp || (q3Dark > 100 && q4Dark > 100 && q1Dark > 80 && q2Dark > 80);
+            const hasFourGridCards = isKicksApp || (q3Dark > 70 && q4Dark > 70 && q1Dark > 60 && q2Dark > 60);
             const itemCount = hasFourGridCards ? 4 : 2;
 
             let appTitle = "Custom Mobile Prototype";
@@ -1950,208 +2215,227 @@ const styles = StyleSheet.create({
 
             boxes.push({ top: '86%', left: '7%', width: '86%', height: '10%', label: 'BottomTabBar' });
 
-            // Build dynamic multi-screen interactive HTML with 100% SVG icons
-            const html = `
-              <div class="flex-1 flex flex-col justify-between h-full">
-                
-                <!-- ================= 1. HOME SCREEN ================= -->
-                <div id="phone-screen-home" class="flex-1 flex flex-col justify-between overflow-y-auto">
-                  <div>
-                    <!-- Header -->
-                    <div class="flex items-center justify-between pb-3 border-b border-slate-800">
-                      <div class="flex items-center gap-2">
-                        <div class="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-black text-xs border border-emerald-500/30">
-                          ⚡
-                        </div>
-                        <div>
-                          <h4 class="text-xs font-bold text-white tracking-wide truncate max-w-[170px]">${appTitle}</h4>
-                          <p class="text-[9px] text-emerald-400 font-semibold">● ${appSubtitle}</p>
-                        </div>
-                      </div>
-                      <div class="relative cursor-pointer" onclick="navigatePhoneScreen('cart')">
-                        <div class="p-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-300">
-                          <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-                        </div>
-                        <span id="phoneCartBadge" class="cart-badge-count absolute -top-1 -right-1 bg-emerald-500 text-slate-950 font-black text-[9px] w-4 h-4 rounded-full flex items-center justify-center transition-transform">1</span>
-                      </div>
-                    </div>
+            const html = buildDynamicAppHtml(appTitle, appSubtitle, bannerTitle, bannerSub, searchPlaceholder, activeItems);
+            const code = buildDynamicReactNativeCode(appTitle, bannerTitle, searchPlaceholder, activeItems);
 
-                    <!-- Search Input -->
-                    <div class="mt-3 relative flex items-center cursor-pointer" onclick="navigatePhoneScreen('search')">
-                      <div class="absolute left-3 pointer-events-none">
-                        <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                      </div>
-                      <input type="text" readonly placeholder="${searchPlaceholder}" class="w-full bg-slate-900 border border-slate-800 rounded-xl pl-8 pr-3 py-1.5 text-xs text-white placeholder-slate-500 cursor-pointer" />
-                    </div>
+            resolve({
+              detectedCount: boxes.length,
+              boxes: boxes,
+              html: html,
+              code: code
+            });
+          };
+        };
+        reader.readAsDataURL(file);
+      });
+    }
 
-                    <!-- Promo Banner -->
-                    <div class="mt-2.5 p-3 rounded-2xl bg-gradient-to-r from-emerald-600 via-teal-700 to-cyan-800 text-white shadow-lg">
-                      <div class="flex items-center justify-between">
-                        <span class="text-[9px] uppercase font-bold tracking-widest bg-black/30 px-1.5 py-0.5 rounded">DETECTED UI REGION</span>
-                        <span class="text-[9px] text-emerald-200 font-bold">${itemCount} Cards</span>
-                      </div>
-                      <div class="text-xs font-black mt-1">${bannerTitle}</div>
-                      <div class="text-[9px] opacity-80 mt-0.5">${bannerSub}</div>
-                    </div>
-
-                    <!-- Items Grid (${itemCount} Sketched Items) -->
-                    <div class="grid grid-cols-2 gap-2 mt-2.5">
-                      ${activeItems.map(item => `
-                        <div class="bg-slate-900 border border-slate-800/80 rounded-2xl p-2 flex flex-col justify-between">
-                          <div class="h-12 bg-slate-800/60 rounded-xl flex items-center justify-center text-2xl">
-                            ${item.icon}
-                          </div>
-                          <div class="mt-1.5">
-                            <div class="text-[10px] font-bold text-white truncate">${item.name}</div>
-                            <div class="text-[11px] font-bold text-emerald-400 mt-0.5">${typeof item.price === 'number' && item.price > 0 ? '$' + item.price.toFixed(2) : (item.price === 0 ? 'Free' : item.price)}</div>
-                          </div>
-                          <button onclick="addItemToCart('${item.name.replace(/'/g, "\\'")}', ${typeof item.price === 'number' ? item.price : 0}, '${item.icon}')" class="mt-1.5 w-full py-1 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-[9px] rounded-lg transition active:scale-95 flex items-center justify-center gap-1 shadow-md shadow-emerald-500/10">
-                            <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                            <span>+ Add Item</span>
-                          </button>
-                        </div>
-                      `).join('')}
-                    </div>
-                  </div>
-                </div>
-
-                <!-- ================= 2. SHOPPING CART / DETAILS SCREEN ================= -->
-                <div id="phone-screen-cart" class="hidden flex-1 flex flex-col justify-between overflow-y-auto">
-                  <div>
-                    <div class="flex items-center justify-between pb-3 border-b border-slate-800">
-                      <button onclick="navigatePhoneScreen('home')" class="text-xs text-slate-400 hover:text-white flex items-center gap-1">
-                        ← Back
-                      </button>
-                      <h4 class="text-xs font-bold text-white">Your Cart (<span class="cart-badge-count">1</span>)</h4>
-                      <div class="w-5"></div>
-                    </div>
-
-                    <!-- Cart Item Rows -->
-                    <div id="cartItemsList" class="space-y-2 mt-3"></div>
-
-                    <!-- Price Summary Card -->
-                    <div class="mt-4 p-3 rounded-2xl bg-surface-900 border border-white/5 space-y-1.5 text-[11px]">
-                      <div class="flex items-center justify-between text-slate-400">
-                        <span>Subtotal</span>
-                        <span id="cartSubtotal" class="font-bold text-white">$19.99</span>
-                      </div>
-                      <div class="flex items-center justify-between text-slate-400">
-                        <span>Processing Fee</span>
-                        <span class="font-bold text-white">$2.50</span>
-                      </div>
-                      <div class="pt-2 border-t border-white/5 flex items-center justify-between font-bold text-xs text-white">
-                        <span>Total Due</span>
-                        <span id="cartTotal" class="text-emerald-400 font-black text-sm">$22.49</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <button onclick="checkoutOrder()" class="mt-3 w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black text-xs rounded-xl shadow-lg transition active:scale-95 flex items-center justify-center gap-2">
-                    <span>🚀 Confirm Order & Pay</span>
-                  </button>
-                </div>
-
-                <!-- ================= 3. SEARCH SCREEN ================= -->
-                <div id="phone-screen-search" class="hidden flex-1 flex flex-col justify-between overflow-y-auto">
-                  <div>
-                    <div class="flex items-center justify-between pb-3 border-b border-slate-800">
-                      <h4 class="text-xs font-bold text-white">Search & Explore</h4>
-                      <button onclick="navigatePhoneScreen('home')" class="text-xs text-slate-400 hover:text-white">Done</button>
-                    </div>
-
-                    <div class="mt-3 relative flex items-center">
-                      <div class="absolute left-3 pointer-events-none">
-                        <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                      </div>
-                      <input type="text" value="Featured" placeholder="Search..." class="w-full bg-slate-900 border border-slate-800 rounded-xl pl-8 pr-3 py-1.5 text-xs text-white" />
-                    </div>
-
-                    <!-- Category Pills -->
-                    <div class="flex items-center gap-1.5 mt-2.5 overflow-x-auto text-[10px]">
-                      <span class="px-2.5 py-1 rounded-full bg-emerald-500 text-slate-950 font-bold">All</span>
-                      <span class="px-2.5 py-1 rounded-full bg-surface-900 border border-white/5 text-slate-300">Trending</span>
-                      <span class="px-2.5 py-1 rounded-full bg-surface-900 border border-white/5 text-slate-300">Popular</span>
-                    </div>
-
-                    <!-- Search Results (${itemCount} Sketched Items) -->
-                    <div class="space-y-2 mt-3">
-                      ${activeItems.map(item => `
-                        <div class="p-2 rounded-2xl bg-surface-900 border border-white/5 flex items-center justify-between text-xs">
-                          <div class="flex items-center gap-2">
-                            <span class="text-lg">${item.icon}</span>
-                            <div>
-                              <div class="font-bold text-white text-[11px]">${item.name}</div>
-                              <div class="text-[9px] text-emerald-400 font-bold">${typeof item.price === 'number' && item.price > 0 ? '$' + item.price.toFixed(2) : 'Included'} • ★ 4.9</div>
-                            </div>
-                          </div>
-                          <button onclick="addItemToCart('${item.name.replace(/'/g, "\\'")}', ${typeof item.price === 'number' ? item.price : 0}, '${item.icon}')" class="px-2 py-1 bg-emerald-500 text-slate-950 font-bold text-[9px] rounded-lg">
-                            + Select
-                          </button>
-                        </div>
-                      `).join('')}
-                    </div>
-                  </div>
-                </div>
-
-                <!-- ================= 4. PROFILE SCREEN ================= -->
-                <div id="phone-screen-profile" class="hidden flex-1 flex flex-col justify-between overflow-y-auto">
-                  <div>
-                    <div class="flex items-center justify-between pb-3 border-b border-slate-800">
-                      <h4 class="text-xs font-bold text-white">Account Details</h4>
-                      <span class="text-[9px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold">ACTIVE</span>
-                    </div>
-
-                    <div class="p-3 mt-3 rounded-2xl bg-surface-900 border border-white/5 flex items-center gap-3">
-                      <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center font-bold text-sm text-slate-950">
-                        GW
-                      </div>
-                      <div>
-                        <div class="text-xs font-bold text-white">Demo Creator</div>
-                        <div class="text-[10px] text-slate-400">creator@ghostwriter.app</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- ================= 5. SUCCESS CONFIRMATION SCREEN ================= -->
-                <div id="phone-screen-success" class="hidden flex-1 flex flex-col items-center justify-center text-center p-4 space-y-3">
-                  <div class="w-14 h-14 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-2xl font-black border border-emerald-500/40 animate-bounce">
-                    ✓
+    // =========================================================================
+    // REUSABLE BUILDERS: Phone App HTML & React Native Code
+    // =========================================================================
+    function buildDynamicAppHtml(appTitle, appSubtitle, bannerTitle, bannerSub, searchPlaceholder, activeItems) {
+      return `
+        <div class="flex-1 flex flex-col justify-between h-full">
+          
+          <!-- ================= 1. HOME SCREEN ================= -->
+          <div id="phone-screen-home" class="flex-1 flex flex-col justify-between overflow-y-auto">
+            <div>
+              <!-- Header -->
+              <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                <div class="flex items-center gap-2">
+                  <div class="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-black text-xs border border-emerald-500/30">
+                    ⚡
                   </div>
                   <div>
-                    <h4 class="text-sm font-bold text-white">Action Completed!</h4>
-                    <p class="text-[10px] text-slate-400 mt-1">Processed successfully</p>
+                    <h4 class="text-xs font-bold text-white tracking-wide truncate max-w-[170px]">${appTitle}</h4>
+                    <p class="text-[9px] text-emerald-400 font-semibold">● ${appSubtitle}</p>
                   </div>
-                  <button onclick="navigatePhoneScreen('home')" class="w-full py-2.5 bg-emerald-500 text-slate-950 font-bold text-xs rounded-xl shadow-md">
-                    ← Back to App
-                  </button>
                 </div>
-
-                <!-- ================= BOTTOM NAVIGATION BAR ================= -->
-                <div class="pt-2 border-t border-slate-800/80 flex items-center justify-around text-slate-400 text-[10px] mt-2">
-                  <button data-tab="home" onclick="navigatePhoneScreen('home')" class="phone-nav-btn text-emerald-400 font-bold flex flex-col items-center transition">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
-                    <span class="text-[8px] mt-0.5">Home</span>
-                  </button>
-                  <button data-tab="search" onclick="navigatePhoneScreen('search')" class="phone-nav-btn hover:text-white flex flex-col items-center transition">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                    <span class="text-[8px] mt-0.5">Search</span>
-                  </button>
-                  <button data-tab="cart" onclick="navigatePhoneScreen('cart')" class="phone-nav-btn hover:text-white flex flex-col items-center transition relative">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-                    <span class="text-[8px] mt-0.5">Cart</span>
-                  </button>
-                  <button data-tab="profile" onclick="navigatePhoneScreen('profile')" class="phone-nav-btn hover:text-white flex flex-col items-center transition">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                    <span class="text-[8px] mt-0.5">Profile</span>
-                  </button>
+                <div class="relative cursor-pointer" onclick="navigatePhoneScreen('cart')">
+                  <div class="p-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-300">
+                    <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+                  </div>
+                  <span id="phoneCartBadge" class="cart-badge-count absolute -top-1 -right-1 bg-emerald-500 text-slate-950 font-black text-[9px] w-4 h-4 rounded-full flex items-center justify-center transition-transform">1</span>
                 </div>
-
               </div>
-            `;
 
-            // Code generation tailored to detected contours
-            const code = `import React, { useState } from 'react';
+              <!-- Search Input -->
+              <div class="mt-3 relative flex items-center cursor-pointer" onclick="navigatePhoneScreen('search')">
+                <div class="absolute left-3 pointer-events-none">
+                  <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                </div>
+                <input type="text" readonly placeholder="${searchPlaceholder}" class="w-full bg-slate-900 border border-slate-800 rounded-xl pl-8 pr-3 py-1.5 text-xs text-white placeholder-slate-500 cursor-pointer" />
+              </div>
+
+              <!-- Promo Banner -->
+              <div class="mt-2.5 p-3 rounded-2xl bg-gradient-to-r from-emerald-600 via-teal-700 to-cyan-800 text-white shadow-lg">
+                <div class="flex items-center justify-between">
+                  <span class="text-[9px] uppercase font-bold tracking-widest bg-black/30 px-1.5 py-0.5 rounded">DETECTED UI REGION</span>
+                  <span class="text-[9px] text-emerald-200 font-bold">${activeItems.length} Cards</span>
+                </div>
+                <div class="text-xs font-black mt-1">${bannerTitle}</div>
+                <div class="text-[9px] opacity-80 mt-0.5">${bannerSub}</div>
+              </div>
+
+              <!-- Items Grid (${activeItems.length} Sketched Items) -->
+              <div class="grid grid-cols-2 gap-2 mt-2.5">
+                ${activeItems.map(item => `
+                  <div class="bg-slate-900 border border-slate-800/80 rounded-2xl p-2 flex flex-col justify-between">
+                    <div class="h-12 bg-slate-800/60 rounded-xl flex items-center justify-center text-2xl">
+                      ${item.icon || '📦'}
+                    </div>
+                    <div class="mt-1.5">
+                      <div class="text-[10px] font-bold text-white truncate">${item.name}</div>
+                      <div class="text-[11px] font-bold text-emerald-400 mt-0.5">${typeof item.price === 'number' && item.price > 0 ? '$' + item.price.toFixed(2) : (item.price === 0 ? 'Free' : item.price)}</div>
+                    </div>
+                    <button onclick="addItemToCart('${item.name.replace(/'/g, "\\'")}', ${typeof item.price === 'number' ? item.price : 0}, '${item.icon || '📦'}')" class="mt-1.5 w-full py-1 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-[9px] rounded-lg transition active:scale-95 flex items-center justify-center gap-1 shadow-md shadow-emerald-500/10">
+                      <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                      <span>+ Add Item</span>
+                    </button>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+
+          <!-- ================= 2. SHOPPING CART / DETAILS SCREEN ================= -->
+          <div id="phone-screen-cart" class="hidden flex-1 flex flex-col justify-between overflow-y-auto">
+            <div>
+              <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                <button onclick="navigatePhoneScreen('home')" class="text-xs text-slate-400 hover:text-white flex items-center gap-1">
+                  ← Back
+                </button>
+                <h4 class="text-xs font-bold text-white">Your Cart (<span class="cart-badge-count">1</span>)</h4>
+                <div class="w-5"></div>
+              </div>
+
+              <!-- Cart Item Rows -->
+              <div id="cartItemsList" class="space-y-2 mt-3"></div>
+
+              <!-- Price Summary Card -->
+              <div class="mt-4 p-3 rounded-2xl bg-surface-900 border border-white/5 space-y-1.5 text-[11px]">
+                <div class="flex items-center justify-between text-slate-400">
+                  <span>Subtotal</span>
+                  <span id="cartSubtotal" class="font-bold text-white">$19.99</span>
+                </div>
+                <div class="flex items-center justify-between text-slate-400">
+                  <span>Processing Fee</span>
+                  <span class="font-bold text-white">$2.50</span>
+                </div>
+                <div class="pt-2 border-t border-white/5 flex items-center justify-between font-bold text-xs text-white">
+                  <span>Total Due</span>
+                  <span id="cartTotal" class="text-emerald-400 font-black text-sm">$22.49</span>
+                </div>
+              </div>
+            </div>
+
+            <button onclick="checkoutOrder()" class="mt-3 w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black text-xs rounded-xl shadow-lg transition active:scale-95 flex items-center justify-center gap-2">
+              <span>🚀 Confirm Order & Pay</span>
+            </button>
+          </div>
+
+          <!-- ================= 3. SEARCH SCREEN ================= -->
+          <div id="phone-screen-search" class="hidden flex-1 flex flex-col justify-between overflow-y-auto">
+            <div>
+              <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                <h4 class="text-xs font-bold text-white">Search & Explore</h4>
+                <button onclick="navigatePhoneScreen('home')" class="text-xs text-slate-400 hover:text-white">Done</button>
+              </div>
+
+              <div class="mt-3 relative flex items-center">
+                <div class="absolute left-3 pointer-events-none">
+                  <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                </div>
+                <input type="text" value="Featured" placeholder="Search..." class="w-full bg-slate-900 border border-slate-800 rounded-xl pl-8 pr-3 py-1.5 text-xs text-white" />
+              </div>
+
+              <!-- Category Pills -->
+              <div class="flex items-center gap-1.5 mt-2.5 overflow-x-auto text-[10px]">
+                <span class="px-2.5 py-1 rounded-full bg-emerald-500 text-slate-950 font-bold">All</span>
+                <span class="px-2.5 py-1 rounded-full bg-surface-900 border border-white/5 text-slate-300">Trending</span>
+                <span class="px-2.5 py-1 rounded-full bg-surface-900 border border-white/5 text-slate-300">Popular</span>
+              </div>
+
+              <!-- Search Results (${activeItems.length} Sketched Items) -->
+              <div class="space-y-2 mt-3">
+                ${activeItems.map(item => `
+                  <div class="p-2 rounded-2xl bg-surface-900 border border-white/5 flex items-center justify-between text-xs">
+                    <div class="flex items-center gap-2">
+                      <span class="text-lg">${item.icon || '📦'}</span>
+                      <div>
+                        <div class="font-bold text-white text-[11px]">${item.name}</div>
+                        <div class="text-[9px] text-emerald-400 font-bold">${typeof item.price === 'number' && item.price > 0 ? '$' + item.price.toFixed(2) : 'Included'} • ★ 4.9</div>
+                      </div>
+                    </div>
+                    <button onclick="addItemToCart('${item.name.replace(/'/g, "\\'")}', ${typeof item.price === 'number' ? item.price : 0}, '${item.icon || '📦'}')" class="px-2 py-1 bg-emerald-500 text-slate-950 font-bold text-[9px] rounded-lg">
+                      + Select
+                    </button>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+
+          <!-- ================= 4. PROFILE SCREEN ================= -->
+          <div id="phone-screen-profile" class="hidden flex-1 flex flex-col justify-between overflow-y-auto">
+            <div>
+              <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                <h4 class="text-xs font-bold text-white">Account Details</h4>
+                <span class="text-[9px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold">ACTIVE</span>
+              </div>
+
+              <div class="p-3 mt-3 rounded-2xl bg-surface-900 border border-white/5 flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center font-bold text-sm text-slate-950">
+                  GW
+                </div>
+                <div>
+                  <div class="text-xs font-bold text-white">Demo Creator</div>
+                  <div class="text-[10px] text-slate-400">creator@ghostwriter.app</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ================= 5. SUCCESS CONFIRMATION SCREEN ================= -->
+          <div id="phone-screen-success" class="hidden flex-1 flex flex-col items-center justify-center text-center p-4 space-y-3">
+            <div class="w-14 h-14 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-2xl font-black border border-emerald-500/40 animate-bounce">
+              ✓
+            </div>
+            <div>
+              <h4 class="text-sm font-bold text-white">Action Completed!</h4>
+              <p class="text-[10px] text-slate-400 mt-1">Processed successfully</p>
+            </div>
+            <button onclick="navigatePhoneScreen('home')" class="w-full py-2.5 bg-emerald-500 text-slate-950 font-bold text-xs rounded-xl shadow-md">
+              ← Back to App
+            </button>
+          </div>
+
+          <!-- ================= BOTTOM NAVIGATION BAR ================= -->
+          <div class="pt-2 border-t border-slate-800/80 flex items-center justify-around text-slate-400 text-[10px] mt-2">
+            <button data-tab="home" onclick="navigatePhoneScreen('home')" class="phone-nav-btn text-emerald-400 font-bold flex flex-col items-center transition">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+              <span class="text-[8px] mt-0.5">Home</span>
+            </button>
+            <button data-tab="search" onclick="navigatePhoneScreen('search')" class="phone-nav-btn hover:text-white flex flex-col items-center transition">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <span class="text-[8px] mt-0.5">Search</span>
+            </button>
+            <button data-tab="cart" onclick="navigatePhoneScreen('cart')" class="phone-nav-btn hover:text-white flex flex-col items-center transition relative">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+              <span class="text-[8px] mt-0.5">Cart</span>
+            </button>
+            <button data-tab="profile" onclick="navigatePhoneScreen('profile')" class="phone-nav-btn hover:text-white flex flex-col items-center transition">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <span class="text-[8px] mt-0.5">Profile</span>
+            </button>
+          </div>
+
+        </div>
+      `;
+    }
+
+    function buildDynamicReactNativeCode(appTitle, bannerTitle, searchPlaceholder, activeItems) {
+      return `import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 
 export default function ${appTitle.replace(/[^a-zA-Z0-9]/g, '')}App() {
@@ -2180,10 +2464,10 @@ export default function ${appTitle.replace(/[^a-zA-Z0-9]/g, '')}App() {
         <Text style={styles.bannerTitle}>${bannerTitle}</Text>
       </View>
 
-      {/* Content Grid (${itemCount} Items Detected) */}
+      {/* Content Grid (${activeItems.length} Items Detected) */}
       <ScrollView contentContainerStyle={styles.grid}>
 ${activeItems.map(item => `        <View style={styles.card}>
-          <Text style={styles.cardIcon}>${item.icon}</Text>
+          <Text style={styles.cardIcon}>${item.icon || '📦'}</Text>
           <Text style={styles.cardTitle}>${item.name}</Text>
           <Text style={styles.price}>${typeof item.price === 'number' && item.price > 0 ? '$' + item.price.toFixed(2) : item.price}</Text>
           <TouchableOpacity style={styles.btn} onPress={() => setCartCount(c => c + 1)}>
@@ -2213,17 +2497,6 @@ const styles = StyleSheet.create({
   btn: { backgroundColor: '#10b981', padding: 8, borderRadius: 8, marginTop: 8, alignItems: 'center' },
   btnText: { color: '#000', fontWeight: 'bold', fontSize: 10 }
 });`;
-
-            resolve({
-              detectedCount: boxes.length,
-              boxes: boxes,
-              html: html,
-              code: code
-            });
-          };
-        };
-        reader.readAsDataURL(file);
-      });
     }
 
     // GLOBAL MULTI-SCREEN MOBILE RUNTIME STATE
